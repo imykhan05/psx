@@ -30,6 +30,9 @@ venv/
 env/
 ENV/
 
+# --- Local tools (downloaded on demand by run_public_api.bat) ---------------
+bin/
+
 # --- OS / editor -----------------------------------------------------------
 .DS_Store
 Thumbs.db
