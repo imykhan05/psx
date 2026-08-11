@@ -27,7 +27,12 @@ from pathlib import Path
 import pandas as pd
 from fastapi import Depends, FastAPI, Header, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
+from fastapi.responses import (
+    FileResponse,
+    HTMLResponse,
+    JSONResponse,
+    StreamingResponse,
+)
 from pydantic import BaseModel, Field
 
 # Reuse the engine's data locations and helpers — single source of truth.
@@ -128,6 +133,74 @@ def home():
     if WEBUI_FILE.exists():
         return FileResponse(WEBUI_FILE, media_type="text/html")
     return JSONResponse({"service": "psx-ai-scanner-api", "docs": "/docs"})
+
+
+APK_FILE = (
+    Path(__file__).resolve().parents[1]
+    / "mobile" / "build" / "app" / "outputs" / "flutter-apk" / "app-debug.apk"
+)
+
+
+@app.get("/app.apk", include_in_schema=False)
+def download_apk():
+    """Serve the built Android APK so a phone can install it over the tunnel."""
+    if APK_FILE.exists():
+        return FileResponse(
+            APK_FILE,
+            media_type="application/vnd.android.package-archive",
+            filename="psx-scanner.apk",
+        )
+    raise HTTPException(status_code=404, detail="APK not built yet.")
+
+
+@app.get("/download", include_in_schema=False)
+def download_page():
+    """Mobile-friendly landing page: download the APK + how to configure it.
+
+    The Base URL to enter in the app is this page's own origin (shown live via
+    JS), so nothing ephemeral is hard-coded. The API key is NOT shown here — the
+    user enters their own key in the app's Settings screen.
+    """
+    apk_ready = APK_FILE.exists()
+    button = (
+        '<a class="btn" href="/app.apk">⬇ Download Android app (.apk)</a>'
+        if apk_ready
+        else '<p class="err">APK not built yet.</p>'
+    )
+    html = f"""<!doctype html><html><head><meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Install PSX AI Scanner</title>
+<style>
+ body{{margin:0;background:#0b0e14;color:#e6edf6;font-family:-apple-system,Segoe UI,Roboto,Arial,sans-serif;line-height:1.5}}
+ .wrap{{max-width:520px;margin:0 auto;padding:22px}}
+ h1{{font-size:20px}} .muted{{color:#8a97a8}}
+ .card{{background:#141a24;border:1px solid #26303f;border-radius:14px;padding:16px;margin:14px 0}}
+ .btn{{display:block;text-align:center;background:#4c9ffe;color:#04121f;font-weight:800;
+   text-decoration:none;padding:14px;border-radius:12px;font-size:16px}}
+ code{{background:#1b2331;padding:2px 7px;border-radius:6px;word-break:break-all}}
+ ol{{padding-left:20px}} li{{margin:7px 0}}
+ .err{{color:#ff5c6c}}
+</style></head><body><div class="wrap">
+ <h1>📈 PSX AI Scanner — Android app</h1>
+ <div class="card">{button}
+   <p class="muted" style="font-size:13px;margin-bottom:0">~145 MB. Phone par kholein.</p>
+ </div>
+ <div class="card">
+   <b>Install ke steps:</b>
+   <ol>
+     <li>Upar wala button dabayein → APK download hoga.</li>
+     <li>Download tap karein → "Unknown sources / is source se install" allow karein → Install.</li>
+     <li>App khol kar <b>Settings</b> mein jayein.</li>
+     <li><b>Base URL</b>: <code id="base"></code></li>
+     <li><b>API Key</b>: apni key paste karein (Claude chat wali).</li>
+     <li>Save → data aa jayega.</li>
+   </ol>
+   <p class="muted" style="font-size:12px">Ya bina install ke: seedha
+     <a href="/" style="color:#4c9ffe">yeh web page</a> kholein — wahi data, koi app nahi.</p>
+ </div>
+ <script>document.getElementById('base').textContent = location.origin;</script>
+</div></body></html>"""
+    return HTMLResponse(html)
 
 
 @app.get("/health")
