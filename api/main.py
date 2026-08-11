@@ -297,6 +297,37 @@ def get_stock(ticker: str) -> dict:
     }
 
 
+SCREENERS_FILE = Path(__file__).resolve().parents[1] / "reports" / "latest" / "screeners.json"
+
+
+@app.get("/screeners", dependencies=[Depends(require_api_key)])
+def get_screeners() -> dict:
+    """List available screeners (name, label, honest note, count) + as-of date."""
+    data = _read_json(SCREENERS_FILE)
+    if not data or not data.get("screeners"):
+        raise HTTPException(status_code=404, detail="No screeners yet. Run the scan first.")
+    scr = data["screeners"]
+    return {
+        "as_of_date": data.get("as_of_date"),
+        "generated_at": data.get("generated_at"),
+        "universe": data.get("universe"),
+        "screeners": [
+            {"name": k, "label": v.get("label"), "note": v.get("note"), "count": v.get("count", 0)}
+            for k, v in scr.items()
+        ],
+    }
+
+
+@app.get("/screener/{name}", dependencies=[Depends(require_api_key)])
+def get_screener(name: str) -> dict:
+    """Rows for one screener (e.g. upper_circuit, above_ma200, volume_spike)."""
+    data = _read_json(SCREENERS_FILE)
+    scr = (data.get("screeners") or {}).get(name)
+    if not scr:
+        raise HTTPException(status_code=404, detail=f"Screener '{name}' not found.")
+    return {"name": name, "as_of_date": data.get("as_of_date"), **scr}
+
+
 @app.post("/query", dependencies=[Depends(require_api_key)])
 def post_query(body: QueryRequest, stream: bool = False):
     """

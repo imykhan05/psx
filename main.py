@@ -1983,6 +1983,31 @@ def main():
         )
 
     # ---------------------------------------------------------
+    # SCREENER ENGINE V1 (Phase: click-and-go screeners)
+    # Turns the scan output + price history into named stock lists
+    # (upper-lock, MA50/MA200, volume spikes, accumulation, rule-picks).
+    # Reads full_market_scan.csv (written above) + SQLite daily_prices.
+    # Non-blocking: any failure is logged and the scan still completes.
+    # ---------------------------------------------------------
+    try:
+        from app.engines.screener_engine_v1 import run_screener_engine
+
+        screener_payload = run_screener_engine()
+        print_dict(
+            "SCREENER ENGINE V1",
+            {
+                "as_of": screener_payload.get("as_of_date"),
+                "universe": screener_payload.get("universe"),
+                "screeners": len(screener_payload.get("screeners", {})),
+            },
+        )
+    except Exception as exc:
+        print(
+            "[SCREENERS] skipped (non-fatal): "
+            f"{type(exc).__name__}: {exc}"
+        )
+
+    # ---------------------------------------------------------
     # SYSTEM SUMMARIES
     # ---------------------------------------------------------
     print_dict(

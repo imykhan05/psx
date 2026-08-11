@@ -55,6 +55,12 @@
   .badge-buy{background:rgba(46,204,113,.16);color:var(--green)}
   .badge-sell,.badge-avoid{background:rgba(255,92,108,.16);color:var(--red)}
   .badge-watch,.badge-neutral{background:rgba(245,181,61,.16);color:var(--amber)}
+  .scrbtns{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:6px}
+  .scrbtn{background:var(--panel2);border:1px solid var(--line);color:#cdd6e2;
+    border-radius:999px;padding:7px 12px;font-size:12.5px;font-weight:700;cursor:pointer}
+  .scrbtn.active{background:var(--accent);color:#04121f;border-color:var(--accent)}
+  .scrbtn .n{opacity:.7;font-weight:600;margin-left:5px}
+  .note{color:var(--amber);font-size:12px;margin:8px 0;line-height:1.4}
 </style>
 </head>
 <body>
@@ -101,6 +107,14 @@
         <button id="tkBtn">Search</button>
       </div>
       <div id="stockBody" style="margin-top:12px"></div>
+    </div>
+
+    <!-- SCREENERS -->
+    <div class="card">
+      <h2>Screeners — click &amp; go</h2>
+      <div id="scrBtns" class="scrbtns muted">Loading…</div>
+      <div id="scrNote" class="note"></div>
+      <div id="scrBody" class="scroll"></div>
     </div>
 
     <!-- OPPORTUNITIES -->
@@ -212,6 +226,62 @@
     $("stockBody").innerHTML = html;
   }
 
+  // ---- screeners ----
+  var SCR_LABELS = {change_pct:"Chg%", buy_probability:"Buy%", value_traded:"Value",
+    vol_ratio:"Vol x", pct_to_52w_high:"% to 52wH", ma50:"MA50", ma200:"MA200",
+    final_decision:"Decision", volume:"Vol", accumulation_score:"Accum",
+    smart_money_score:"SmartMoney", stop_loss:"Stop", target_1:"T1", target_2:"T2",
+    hi52:"52w High", close:"Close", symbol:"Symbol"};
+  function scrLabel(k){ return SCR_LABELS[k] || k; }
+  var BIGNUM = {volume:1, value_traded:1};
+
+  function loadScreeners(){
+    $("scrBtns").innerHTML = '<span class="muted">Loading…</span>';
+    api("/screeners").then(function(d){
+      var list = d.screeners||[];
+      if(!list.length){ $("scrBtns").innerHTML='<span class="muted">No screeners yet.</span>'; return; }
+      $("scrBtns").innerHTML = list.map(function(s){
+        return '<button class="scrbtn" data-name="'+s.name+'">'+s.label+
+          '<span class="n">'+s.count+'</span></button>';
+      }).join('');
+      Array.prototype.forEach.call($("scrBtns").querySelectorAll(".scrbtn"), function(b){
+        b.onclick = function(){ showScreener(b.getAttribute("data-name"), b); };
+      });
+      var first = $("scrBtns").querySelector(".scrbtn");
+      if(first) first.click();
+    }).catch(function(e){ $("scrBtns").innerHTML='<span class="err">'+e.message+'</span>'; });
+  }
+
+  function showScreener(name, btn){
+    Array.prototype.forEach.call($("scrBtns").querySelectorAll(".scrbtn"),
+      function(b){ b.classList.remove("active"); });
+    if(btn) btn.classList.add("active");
+    $("scrNote").textContent = "";
+    $("scrBody").innerHTML = '<span class="muted">Loading…</span>';
+    api("/screener/"+encodeURIComponent(name)).then(function(d){
+      $("scrNote").textContent = d.note || "";
+      var rows = d.rows||[];
+      if(!rows.length){ $("scrBody").innerHTML='<span class="muted">Is filter mein koi stock nahi.</span>'; return; }
+      var cols = Object.keys(rows[0]).filter(function(c){ return ["company","sector"].indexOf(c)<0; });
+      var pref = ["symbol","final_decision","close","change_pct"];
+      var ordered = pref.filter(function(c){return cols.indexOf(c)>-1;})
+        .concat(cols.filter(function(c){return pref.indexOf(c)<0;}));
+      var h='<table><thead><tr>'+ordered.map(function(c){return '<th>'+scrLabel(c)+'</th>';}).join('')+
+        '</tr></thead><tbody>';
+      rows.forEach(function(r){
+        h+='<tr>'+ordered.map(function(c){
+          var v=r[c];
+          if(c==="symbol") return '<td style="font-weight:800">'+(v==null?"":v)+'</td>';
+          if(c==="final_decision") return '<td>'+(v?'<span class="pill '+badgeClass(v)+'">'+v+'</span>':'—')+'</td>';
+          if(c==="change_pct"){var n=Number(v);
+            return '<td style="color:'+(v==null?"var(--muted)":(n>=0?"var(--green)":"var(--red)"))+'">'+num(v)+'</td>';}
+          return '<td>'+num(v, BIGNUM[c]?0:2)+'</td>';
+        }).join('')+'</tr>';
+      });
+      $("scrBody").innerHTML = h+'</tbody></table>';
+    }).catch(function(e){ $("scrBody").innerHTML='<span class="err">'+e.message+'</span>'; });
+  }
+
   // ---- actions ----
   function loadAll(){
     $("signalBody").innerHTML = '<span class="muted">Loading…</span>';
@@ -220,6 +290,7 @@
       $("signalBody").innerHTML = '<span class="err">'+e.message+'</span>';
       if(/key/i.test(e.message)) showGate(e.message);
     });
+    loadScreeners();
     api("/opportunities?limit=25").then(renderOpps).catch(function(e){
       $("oppBody").innerHTML = '<span class="err">'+e.message+'</span>';
     });
