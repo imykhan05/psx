@@ -366,3 +366,75 @@ Once `curl` works, update the **base URL** in:
 
 That's Priority-1 items 3–5; ping me to do the Flutter/React URL switch and the
 off-WiFi mobile-data test.
+
+---
+---
+
+# Item 2 (alternative host) — Hugging Face Spaces (no credit card)
+
+Render's free tier now requires a card on file. Hugging Face **Spaces** is a
+genuinely no-card, always-on free host, and it's a git repo just like GitHub, so
+the same git-commit-on-refresh model applies. The API runs as a **Docker Space**
+on port **7860**.
+
+## What's in the repo for this
+
+| File | Purpose |
+|------|---------|
+| `Dockerfile` | Builds the API image: installs `requirements-api.txt`, copies `api/`, `app/`, `config.py`, and the two data dirs, runs `uvicorn ... --port 7860`. |
+| `README.md` | Carries the HF Space metadata frontmatter (`sdk: docker`, `app_port: 7860`). |
+| `.dockerignore` | Keeps the build context small (excludes frontend/mobile/tests/heavy data). |
+| `tools/publish_outputs.py` | Now pushes to **every** git remote, so GitHub + the Space both stay fresh. |
+
+## Step 1 — Create the Space and a token (you do this)
+
+1. Sign in at <https://huggingface.co>.
+2. New Space: <https://huggingface.co/new-space>
+   - **Owner:** your username · **Space name:** `psx`
+   - **SDK: Docker** → **Blank** template
+   - **Hardware: CPU basic** (free) · Visibility: your choice
+   - **Create Space**
+3. Create a **Write** token: <https://huggingface.co/settings/tokens> → *New token* → type **Write** → copy it.
+4. Log in locally so pushes are authenticated (the token is stored by the CLI —
+   I never see it). Answer **Yes** to "add token as git credential":
+
+```bash
+huggingface-cli login
+```
+
+Then tell me your **HF username** and say **"logged in"**.
+
+## Step 2 — I push the app to the Space
+
+Once you're logged in, I run (using your stored credential — no secret typed by me):
+
+```bash
+git remote add hf https://huggingface.co/spaces/<username>/psx
+git push hf main --force
+```
+
+The Space builds the Docker image (~3–4 min) and boots the API.
+
+## Step 3 — Set the API key as a Space secret (you do this)
+
+In the Space → **Settings** → **Variables and secrets** → **New secret**:
+- Name `PSX_API_KEY`, value = the key from the Render section above.
+- (optional) `ANTHROPIC_API_KEY` for the `/query` assistant.
+
+The Space restarts with the secret applied.
+
+## Step 4 — Verify
+
+The Space URL is `https://<username>-psx.hf.space`:
+
+```bash
+curl https://<username>-psx.hf.space/health
+curl -H "X-API-Key: <KEY>" https://<username>-psx.hf.space/signal
+```
+
+## Step 5 — Fresh data on a schedule
+
+Because the publisher now pushes to all remotes, your scheduled
+`python main.py --publish` / `python tools/refresh_sentiment.py --publish` runs
+update **both** GitHub and the Space (the Space rebuilds automatically). Nothing
+extra to configure — just make sure the `hf` remote exists (step 2).

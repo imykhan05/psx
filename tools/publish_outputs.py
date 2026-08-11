@@ -2,9 +2,10 @@
 git-commit-on-refresh publisher (Deploy Priority 1, item 2).
 
 Commits the small set of output files the deployed API serves, and (by default)
-pushes them to the `origin` remote. A push to `main` is what triggers Render's
-auto-deploy, so this is the bridge between "scan ran on my PC" and "the cloud API
-shows fresh data".
+pushes them to EVERY configured git remote. A push to `main` is what triggers a
+redeploy on the host (Hugging Face Space / Render / etc.), so this is the bridge
+between "scan ran on my PC" and "the cloud API shows fresh data". Pushing to all
+remotes means GitHub (code backup) and the deploy host both stay in sync.
 
 Design choices:
 - Only the whitelisted OUTPUT_FILES are touched. They are force-added
@@ -60,9 +61,9 @@ def _is_git_repo() -> bool:
         return False
 
 
-def _has_origin() -> bool:
+def _all_remotes() -> list[str]:
     result = _git("remote", check=False)
-    return "origin" in result.stdout.split()
+    return [r for r in result.stdout.split() if r]
 
 
 def _current_branch() -> str:
@@ -121,19 +122,26 @@ def publish(push: bool = True, quiet: bool = False) -> int:
         say("--no-push set; committed locally only.")
         return 0
 
-    if not _has_origin():
+    remotes = _all_remotes()
+    if not remotes:
         say(
-            "no 'origin' remote configured — commit is local only. Add a remote "
+            "no git remote configured — commit is local only. Add a remote "
             "(see docs/DEPLOYMENT.md) and the next publish will push."
         )
         return 0
 
     branch = _current_branch()
-    pushed = _git("push", "origin", branch, check=False)
-    if pushed.returncode != 0:
-        say(f"git push failed: {pushed.stderr.strip()}")
+    failed = []
+    for remote in remotes:
+        pushed = _git("push", remote, branch, check=False)
+        if pushed.returncode != 0:
+            say(f"push to '{remote}' failed: {pushed.stderr.strip()}")
+            failed.append(remote)
+        else:
+            say(f"pushed to {remote}/{branch}")
+    if failed:
         return 2
-    say(f"pushed to origin/{branch} — Render will auto-deploy the fresh data.")
+    say("all remotes updated — the deployed API will pick up the fresh data.")
     return 0
 
 

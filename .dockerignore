@@ -1,0 +1,36 @@
+# Keep the Docker build context small — exclude everything the API image
+# doesn't need. The Dockerfile COPYs only api/, app/, config.py, and the two
+# small data dirs, so nothing below is required at build time.
+
+.git
+.gitignore
+.gitattributes
+.venv
+venv
+env
+**/__pycache__
+*.pyc
+*.pyo
+
+# UI clients and desktop terminal (not part of the API image)
+frontend
+mobile
+institutional_terminal_v1.py
+
+# Repo scaffolding not needed in the image
+archive
+tests
+docs
+tools
+reports/backtests
+reports/portfolio_analytics
+
+# Heavy / local-only data (also gitignored, listed here for local builds)
+database/historical_files
+database/portfolio
+*.db
+*.sqlite
+logs
+*.log
+psx_history*.csv
+*.apk
