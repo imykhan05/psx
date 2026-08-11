@@ -128,6 +128,13 @@
       <div id="scrBody" class="scroll"></div>
     </div>
 
+    <!-- SECTOR ROTATION -->
+    <div class="card">
+      <h2>Sector rotation — where money flowed</h2>
+      <div id="secNote" class="note"></div>
+      <div id="secBody" class="scroll muted">Loading…</div>
+    </div>
+
     <!-- ALL STOCKS (paginated, ranked) -->
     <div class="card">
       <h2>All stocks — ranked (buy-or-not)</h2>
@@ -342,6 +349,28 @@
     }).catch(function(e){ $("scrBody").innerHTML='<span class="err">'+e.message+'</span>'; });
   }
 
+  // ---- sector rotation ----
+  function loadSectors(){
+    $("secBody").innerHTML = '<span class="muted">Loading…</span>';
+    api("/sectors").then(function(d){
+      $("secNote").textContent = d.note || "";
+      var rows = d.sectors || [];
+      if(!rows.length){ $("secBody").innerHTML='<span class="muted">No sector data.</span>'; return; }
+      function pc(v){ var n=Number(v);
+        return '<td style="color:'+(v==null?"var(--muted)":(n>=0?"var(--green)":"var(--red)"))+'">'+num(v)+'</td>'; }
+      var h='<table><thead><tr><th>#</th><th>Sector</th><th>N</th><th>1d%</th><th>1w%</th>'+
+        '<th>1m%</th><th>200d%</th><th>RelVol</th><th>%&gt;MA50</th><th>Trend</th></tr></thead><tbody>';
+      rows.forEach(function(r){
+        var tc = r.trend==="accelerating"?"badge-buy":r.trend==="fading"?"badge-avoid":"badge-watch";
+        h+='<tr><td>'+r.rank+'</td><td style="font-weight:700">'+r.sector+'</td><td>'+r.n+'</td>'+
+          pc(r.ret_1d)+pc(r.ret_1w)+pc(r.ret_1m)+pc(r.ret_200d)+
+          '<td>'+num(r.avg_rvol)+'</td><td>'+num(r.pct_above_ma50)+'</td>'+
+          '<td><span class="pill '+tc+'">'+r.trend+'</span></td></tr>';
+      });
+      $("secBody").innerHTML = h+'</tbody></table>';
+    }).catch(function(e){ $("secBody").innerHTML='<span class="err">'+e.message+'</span>'; });
+  }
+
   // ---- all stocks (paginated) ----
   var stkQ = "";
   function loadStocks(page){
@@ -388,6 +417,7 @@
       if(/key/i.test(e.message)) showGate(e.message);
     });
     loadScreeners();
+    loadSectors();
     loadStocks(1);
     api("/opportunities?limit=25").then(renderOpps).catch(function(e){
       $("oppBody").innerHTML = '<span class="err">'+e.message+'</span>';

@@ -328,6 +328,19 @@ def get_screener(name: str) -> dict:
     return {"name": name, "as_of_date": data.get("as_of_date"), **scr}
 
 
+SECTORS_FILE = Path(__file__).resolve().parents[1] / "reports" / "latest" / "sector_rotation.json"
+
+
+@app.get("/sectors", dependencies=[Depends(require_api_key)])
+def get_sectors() -> dict:
+    """Sector rotation: sectors ranked by this week's move, with 1d/1m/200d
+    context, breadth, volume trend, accelerating/fading flag, and top stocks."""
+    data = _read_json(SECTORS_FILE)
+    if not data:
+        raise HTTPException(status_code=404, detail="No sector data yet. Run the scan first.")
+    return data
+
+
 BRIEFING_FILE = Path(__file__).resolve().parents[1] / "reports" / "latest" / "morning_briefing.json"
 
 
