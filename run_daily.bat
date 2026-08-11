@@ -20,13 +20,18 @@ REM    python main.py --backfill
 REM ============================================================================
 cd /d D:\PSX_AI_SCANNER
 
+REM Use the real interpreter by full path (the WindowsApps 'python' alias can
+REM misbehave under Task Scheduler). Falls back to PATH if it ever moves.
+set "PY=C:\Users\Imran\AppData\Local\Python\pythoncore-3.14-64\python.exe"
+if not exist "%PY%" set "PY=python"
+
 echo [%date% %time%] 1/3 downloading new EOD files...
-python tools\download_eod.py
+"%PY%" tools\download_eod.py
 
 echo [%date% %time%] 2/3 importing latest + full scan (+ signal + screeners)...
-python main.py --daily-import
+"%PY%" main.py --daily-import
 
 echo [%date% %time%] 3/3 refreshing news sentiment...
-python tools\refresh_sentiment.py
+"%PY%" tools\refresh_sentiment.py
 
 echo [%date% %time%] daily pipeline complete.
