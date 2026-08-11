@@ -81,6 +81,14 @@ def build(df: pd.DataFrame) -> pd.DataFrame:
         + zscore(df["obv_norm"]) + zscore(df["close_str_5"])
     ) / 4.0
 
+    # The user's "fresh entry" idea: volume coming in BEFORE the price has run up.
+    df["mom_21"] = g["close"].transform(lambda s: s / s.shift(21) - 1)
+    df["rev_5"] = -(g["close"].transform(lambda s: s / s.shift(5) - 1))
+    # combo A: high volume + recent dip (accumulation on weakness)
+    df["vol_x_rev"] = zscore(df["rvol_5"]) + zscore(df["rev_5"])
+    # combo B: high volume + NOT already extended (fresh, not chased)
+    df["vol_x_lowmom"] = zscore(df["rvol_5"]) - zscore(df["mom_21"])
+
     df["fwd_5"] = g["close"].transform(lambda s: s.shift(-5) / s - 1) * 100.0
     df["fwd_10"] = g["close"].transform(lambda s: s.shift(-10) / s - 1) * 100.0
     df["year"] = df["date_parsed"].dt.year
@@ -110,7 +118,7 @@ def main() -> int:
     print(f"stock-days: {int(df['fwd_5'].notna().sum()):,} | "
           f"market avg fwd_5={df['fwd_5'].mean():+.2f}% fwd_10={df['fwd_10'].mean():+.2f}%\n")
 
-    sigs = ["rvol_5", "buy_pressure", "obv_norm", "close_str_5", "accum"]
+    sigs = ["rvol_5", "vol_x_rev", "vol_x_lowmom", "close_str_5", "accum"]
     print(f"{'signal':13} {'IC_5':>7} {'spread_5':>9} {'IC_10':>7} {'spread_10':>10}")
     print("-" * 50)
     for s in sigs:
@@ -118,12 +126,11 @@ def main() -> int:
               f"{ic(df[s], df['fwd_10']):>7.3f} {spread(df[s], df['fwd_10']):>10.2f}")
 
     print("\nper-year top-minus-bottom decile fwd_5 (%), by signal:")
-    print(f"  {'year':6} {'rvol_5':>8} {'buy_prs':>8} {'obv':>8} {'accum':>8} {'market':>8}")
+    print(f"  {'year':6} {'rvol_5':>8} {'vol_rev':>8} {'vol_lowM':>9} {'market':>8}")
     for yr, sub in df.groupby("year"):
         print(f"  {yr:<6} {spread(sub['rvol_5'], sub['fwd_5']):>8.2f} "
-              f"{spread(sub['buy_pressure'], sub['fwd_5']):>8.2f} "
-              f"{spread(sub['obv_norm'], sub['fwd_5']):>8.2f} "
-              f"{spread(sub['accum'], sub['fwd_5']):>8.2f} "
+              f"{spread(sub['vol_x_rev'], sub['fwd_5']):>8.2f} "
+              f"{spread(sub['vol_x_lowmom'], sub['fwd_5']):>9.2f} "
               f"{float(sub['fwd_5'].mean()):>8.2f}")
 
     print("\nRead: a signal with positive IC AND a positive, year-after-year decile "

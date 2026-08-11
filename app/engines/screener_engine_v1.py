@@ -81,6 +81,9 @@ def _load_prices() -> pd.DataFrame:
     df["ma50"] = g["close"].transform(lambda s: s.rolling(50, min_periods=50).mean())
     df["ma200"] = g["close"].transform(lambda s: s.rolling(200, min_periods=200).mean())
     df["avg_vol20"] = g["volume"].transform(lambda s: s.rolling(20, min_periods=10).mean())
+    # Sustained relative volume (5-day avg vs 20-day avg) — the one accumulation
+    # footprint that stayed weakly predictive in 2024-26 (see docs/EDGE_VALIDATION.md).
+    df["rvol5"] = g["volume"].transform(lambda s: s.rolling(5, min_periods=3).mean()) / df["avg_vol20"]
     df["hi52"] = g["high"].transform(lambda s: s.rolling(252, min_periods=30).max())
     df["lo52"] = g["low"].transform(lambda s: s.rolling(252, min_periods=30).min())
     # N-trading-days-ago close for multi-timeframe returns (1w=5, 1m=21, 200d).
@@ -246,6 +249,15 @@ def build_screeners(df: pd.DataFrame | None = None) -> dict:
         "Volume at least 2x its 20-day average with price up — unusual interest.",
         df[(df["vol_ratio"] >= 2.0) & (df["change_pct"] > 0)],
         "vol_ratio", False, ["vol_ratio", "volume", "final_decision"])
+
+    add("accumulation_radar", "Accumulation radar (sustained volume)",
+        "Sustained unusually high volume: the 5-day average volume is >= 1.5x the "
+        "20-day average — a footprint of large buyers accumulating over days. This is "
+        "the ONE accumulation signal that stayed (weakly) predictive in 2024-26: "
+        "~+0.5-1% edge over the next week (see docs/EDGE_VALIDATION.md). Small and thin "
+        "after costs — a lead to watch, NOT a guaranteed buy.",
+        df[df["rvol5"] >= 1.5], "rvol5", False,
+        ["rvol5", "vol_ratio", "change_pct", "final_decision"])
 
     add("near_52w_high", "Near 52-week high (breakout candidates)",
         "Within 5% of the 52-week high.",
