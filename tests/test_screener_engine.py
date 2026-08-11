@@ -96,3 +96,14 @@ def test_scored_screeners_present_when_scan_has_them(wired):
 
 def test_top_picks_note_states_edge_unvalidated(wired):
     assert "NOT yet validated" in wired["screeners"]["top_picks"]["note"]
+
+
+def test_all_stocks_ranked_and_honest(wired):
+    a = se.build_all_stocks()
+    assert a["count"] == 2
+    # ranked by buy_probability desc: UPUP(70) before DOWN(20)
+    assert [r["symbol"] for r in a["rows"]] == ["UPUP", "DOWN"]
+    assert a["rows"][0]["rank"] == 1 and a["rows"][0]["tier"].startswith("Top")
+    # multi-timeframe returns are present and the note refuses to claim "buy"
+    assert "ret_1m" in a["rows"][0] and "ret_200d" in a["rows"][0]
+    assert "NOT a validated buy" in a["note"]

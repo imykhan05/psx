@@ -41,6 +41,7 @@ PROJECT_ROOT = Path(__file__).resolve().parents[2]
 DB_PATH = PROJECT_ROOT / "database" / "psx_terminal.db"
 SCAN_CSV = PROJECT_ROOT / "reports" / "latest" / "full_market_scan.csv"
 OUT_PATH = PROJECT_ROOT / "reports" / "latest" / "screeners.json"
+ALL_STOCKS_PATH = PROJECT_ROOT / "reports" / "latest" / "all_stocks.json"
 
 # PSX normal circuit breaker is +/-7.5%; use a hair under as the "at upper lock".
 UPPER_CIRCUIT_PCT = 7.4
@@ -82,9 +83,16 @@ def _load_prices() -> pd.DataFrame:
     df["avg_vol20"] = g["volume"].transform(lambda s: s.rolling(20, min_periods=10).mean())
     df["hi52"] = g["high"].transform(lambda s: s.rolling(252, min_periods=30).max())
     df["lo52"] = g["low"].transform(lambda s: s.rolling(252, min_periods=30).min())
+    # N-trading-days-ago close for multi-timeframe returns (1w=5, 1m=21, 200d).
+    df["c_1w"] = g["close"].transform(lambda s: s.shift(5))
+    df["c_1m"] = g["close"].transform(lambda s: s.shift(21))
+    df["c_200"] = g["close"].transform(lambda s: s.shift(200))
 
     latest = df.groupby("symbol").tail(1).copy()
     latest["as_of"] = latest["date_parsed"].dt.strftime("%Y-%m-%d")
+    latest["ret_1w"] = (latest["close"] / latest["c_1w"] - 1.0) * 100.0
+    latest["ret_1m"] = (latest["close"] / latest["c_1m"] - 1.0) * 100.0
+    latest["ret_200d"] = (latest["close"] / latest["c_200"] - 1.0) * 100.0
     return latest
 
 
@@ -116,13 +124,13 @@ def _rows(df: pd.DataFrame, extra: list[str]) -> list[dict]:
     return recs
 
 
-def build_screeners() -> dict:
+def _merged_frame() -> pd.DataFrame:
+    """Latest per-symbol technicals (SQLite) merged with scan scores (CSV)."""
     px = _load_prices()
     scores = _load_scores()
     if not scores.empty:
         df = px.merge(scores, on="symbol", how="left", suffixes=("", "_scan"))
-        # prefer scan company/sector when present
-        for c in ("company", "sector"):
+        for c in ("company", "sector"):  # prefer scan company/sector when present
             sc = f"{c}_scan"
             if sc in df.columns:
                 df[c] = df[sc].where(df[sc].notna(), df.get(c))
@@ -138,6 +146,64 @@ def build_screeners() -> dict:
     df["above_ma200"] = df["close"] > df["ma200"]
     df["vol_ratio"] = df["volume"] / df["avg_vol20"]
     df["pct_to_52w_high"] = (df["hi52"] - df["close"]) / df["hi52"] * 100.0
+    return df
+
+
+def build_all_stocks(df: pd.DataFrame | None = None) -> dict:
+    """
+    EVERY stock, ranked by the engine's real buy_probability, with a relative
+    tier and multi-timeframe returns. This is deliberately NOT a buy list: it
+    surfaces differentiation even when the engine rates everything AVOID (it
+    shows the true probability + where each stock ranks, not a fake BUY).
+    """
+    if df is None:
+        df = _merged_frame()
+    d = df.copy()
+    d["buy_probability"] = pd.to_numeric(d.get("buy_probability"), errors="coerce")
+    d = d.sort_values("buy_probability", ascending=False, na_position="last").reset_index(drop=True)
+    n = len(d)
+    d["rank"] = range(1, n + 1)
+
+    def tier(rank: int) -> str:
+        p = rank / max(n, 1)
+        if p <= 0.10:
+            return "Top 10%"
+        if p <= 0.25:
+            return "Top 25%"
+        if p <= 0.50:
+            return "Top 50%"
+        return "Bottom 50%"
+
+    d["tier"] = d["rank"].map(tier)
+
+    cols = ["rank", "tier", "symbol", "company", "sector", "close", "change_pct",
+            "ret_1w", "ret_1m", "ret_200d", "buy_probability", "final_decision",
+            "above_ma50", "above_ma200", "stop_loss", "target_1", "target_2"]
+    out = d[[c for c in cols if c in d.columns]].replace({np.nan: None})
+    rows = out.to_dict(orient="records")
+    for r in rows:
+        for k, v in r.items():
+            if isinstance(v, float):
+                r[k] = round(v, 2)
+            elif isinstance(v, bool):
+                r[k] = bool(v)
+
+    as_of = d["as_of"].dropna().max() if "as_of" in d else None
+    return {
+        "engine_version": "screener_engine_v1",
+        "generated_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        "as_of_date": as_of,
+        "count": n,
+        "note": "Ranked by the engine's real buy_probability. A high rank means "
+                "'relatively strongest today', NOT a validated buy — the whole "
+                "market may still be rated AVOID, and the rule edge is unproven.",
+        "rows": rows,
+    }
+
+
+def build_screeners(df: pd.DataFrame | None = None) -> dict:
+    if df is None:
+        df = _merged_frame()
 
     as_of = df["as_of"].dropna().max() if "as_of" in df else None
     S: dict[str, dict] = {}
@@ -219,9 +285,12 @@ def build_screeners() -> dict:
 
 
 def run_screener_engine() -> dict:
-    payload = build_screeners()
+    df = _merged_frame()
+    payload = build_screeners(df)
+    all_stocks = build_all_stocks(df)
     OUT_PATH.parent.mkdir(parents=True, exist_ok=True)
     OUT_PATH.write_text(json.dumps(payload, indent=2, ensure_ascii=False), encoding="utf-8")
+    ALL_STOCKS_PATH.write_text(json.dumps(all_stocks, indent=2, ensure_ascii=False), encoding="utf-8")
     return payload
 
 

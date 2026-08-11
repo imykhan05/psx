@@ -328,6 +328,48 @@ def get_screener(name: str) -> dict:
     return {"name": name, "as_of_date": data.get("as_of_date"), **scr}
 
 
+ALL_STOCKS_FILE = Path(__file__).resolve().parents[1] / "reports" / "latest" / "all_stocks.json"
+
+
+@app.get("/stocks", dependencies=[Depends(require_api_key)])
+def get_stocks(page: int = 1, size: int = 50, q: str | None = None, sort: str = "rank") -> dict:
+    """
+    EVERY stock, paginated (default 50/page), ranked by real buy_probability.
+    Optional ?q= filters by symbol/company. This is a ranked list, not a buy
+    list — see the returned `note`.
+    """
+    data = _read_json(ALL_STOCKS_FILE)
+    rows = data.get("rows", [])
+    if not rows:
+        raise HTTPException(status_code=404, detail="No stock list yet. Run the scan first.")
+
+    if q:
+        ql = q.strip().upper()
+        rows = [
+            r for r in rows
+            if ql in str(r.get("symbol", "")).upper() or ql in str(r.get("company", "")).upper()
+        ]
+
+    # sort options: rank (default), change_pct, ret_1w, ret_1m, ret_200d, buy_probability
+    if sort and sort != "rank" and rows and sort in rows[0]:
+        rows = sorted(rows, key=lambda r: (r.get(sort) is None, -(r.get(sort) or 0)))
+
+    size = max(1, min(size, 100))
+    total = len(rows)
+    pages = max(1, (total + size - 1) // size)
+    page = max(1, min(page, pages))
+    start = (page - 1) * size
+    return {
+        "as_of_date": data.get("as_of_date"),
+        "note": data.get("note"),
+        "total": total,
+        "page": page,
+        "pages": pages,
+        "size": size,
+        "rows": rows[start:start + size],
+    }
+
+
 @app.post("/query", dependencies=[Depends(require_api_key)])
 def post_query(body: QueryRequest, stream: bool = False):
     """

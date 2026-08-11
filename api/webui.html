@@ -61,6 +61,11 @@
   .scrbtn.active{background:var(--accent);color:#04121f;border-color:var(--accent)}
   .scrbtn .n{opacity:.7;font-weight:600;margin-left:5px}
   .note{color:var(--amber);font-size:12px;margin:8px 0;line-height:1.4}
+  .pager{display:flex;align-items:center;justify-content:center;gap:14px;margin-top:12px}
+  .pbtn{background:var(--panel2);border:1px solid var(--line);color:var(--text);
+    border-radius:9px;padding:8px 14px;font-weight:700;cursor:pointer}
+  .pbtn:disabled{opacity:.4;cursor:default}
+  .pinfo{color:var(--muted);font-size:12.5px}
 </style>
 </head>
 <body>
@@ -115,6 +120,18 @@
       <div id="scrBtns" class="scrbtns muted">Loading…</div>
       <div id="scrNote" class="note"></div>
       <div id="scrBody" class="scroll"></div>
+    </div>
+
+    <!-- ALL STOCKS (paginated, ranked) -->
+    <div class="card">
+      <h2>All stocks — ranked (buy-or-not)</h2>
+      <div class="flex" style="margin-bottom:8px">
+        <input id="stkSearch" class="grow" placeholder="Search symbol / company…" autocomplete="off" />
+        <button id="stkSearchBtn">Search</button>
+      </div>
+      <div id="stkNote" class="note"></div>
+      <div id="stkBody" class="scroll muted">Loading…</div>
+      <div id="stkPager" class="pager"></div>
     </div>
 
     <!-- OPPORTUNITIES -->
@@ -282,6 +299,42 @@
     }).catch(function(e){ $("scrBody").innerHTML='<span class="err">'+e.message+'</span>'; });
   }
 
+  // ---- all stocks (paginated) ----
+  var stkQ = "";
+  function loadStocks(page){
+    var p = page || 1;
+    $("stkBody").innerHTML = '<span class="muted">Loading…</span>';
+    var url = "/stocks?page="+p+"&size=50";
+    if(stkQ) url += "&q="+encodeURIComponent(stkQ);
+    api(url).then(function(d){
+      $("stkNote").textContent = d.note || "";
+      var rows = d.rows||[];
+      if(!rows.length){ $("stkBody").innerHTML='<span class="muted">Koi stock nahi mila.</span>'; $("stkPager").innerHTML=""; return; }
+      var cols = ["rank","tier","symbol","close","change_pct","ret_1w","ret_1m","ret_200d","buy_probability","final_decision"];
+      var lbl = {rank:"#",tier:"Tier",symbol:"Symbol",close:"Close",change_pct:"1d%",ret_1w:"1w%",ret_1m:"1m%",ret_200d:"200d%",buy_probability:"Buy%",final_decision:"Call"};
+      var pctc = {change_pct:1,ret_1w:1,ret_1m:1,ret_200d:1};
+      var h='<table><thead><tr>'+cols.map(function(c){return '<th>'+lbl[c]+'</th>';}).join('')+'</tr></thead><tbody>';
+      rows.forEach(function(r){
+        h+='<tr>'+cols.map(function(c){
+          var v=r[c];
+          if(c==="symbol") return '<td style="font-weight:800">'+(v==null?"":v)+'</td>';
+          if(c==="final_decision") return '<td>'+(v?'<span class="pill '+badgeClass(v)+'">'+v+'</span>':'—')+'</td>';
+          if(pctc[c]){var n=Number(v);return '<td style="color:'+(v==null?"var(--muted)":(n>=0?"var(--green)":"var(--red)"))+'">'+num(v)+'</td>';}
+          return '<td>'+num(v)+'</td>';
+        }).join('')+'</tr>';
+      });
+      $("stkBody").innerHTML = h+'</tbody></table>';
+      $("stkPager").innerHTML =
+        '<button class="pbtn" '+(d.page<=1?'disabled':'')+' id="pgPrev">‹ Prev</button>'+
+        '<span class="pinfo">Page '+d.page+' / '+d.pages+' · '+d.total+' stocks</span>'+
+        '<button class="pbtn" '+(d.page>=d.pages?'disabled':'')+' id="pgNext">Next ›</button>';
+      var pv=$("pgPrev"), nx=$("pgNext");
+      if(pv) pv.onclick=function(){ loadStocks(d.page-1); };
+      if(nx) nx.onclick=function(){ loadStocks(d.page+1); };
+    }).catch(function(e){ $("stkBody").innerHTML='<span class="err">'+e.message+'</span>'; });
+  }
+  function doStkSearch(){ stkQ = ($("stkSearch").value||"").trim(); loadStocks(1); }
+
   // ---- actions ----
   function loadAll(){
     $("signalBody").innerHTML = '<span class="muted">Loading…</span>';
@@ -291,6 +344,7 @@
       if(/key/i.test(e.message)) showGate(e.message);
     });
     loadScreeners();
+    loadStocks(1);
     api("/opportunities?limit=25").then(renderOpps).catch(function(e){
       $("oppBody").innerHTML = '<span class="err">'+e.message+'</span>';
     });
@@ -323,6 +377,8 @@
   $("logoutBtn").onclick = function(){ clearKey(); showGate(); };
   $("tkBtn").onclick = lookup;
   $("tk").addEventListener("keydown", function(e){ if(e.key==="Enter") lookup(); });
+  $("stkSearchBtn").onclick = doStkSearch;
+  $("stkSearch").addEventListener("keydown", function(e){ if(e.key==="Enter") doStkSearch(); });
 
   // boot
   if(getKey()) showMain(); else showGate();
