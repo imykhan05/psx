@@ -97,6 +97,12 @@
       </div>
     </header>
 
+    <!-- MORNING BRIEFING -->
+    <div class="card" id="briefCard">
+      <h2>Morning briefing</h2>
+      <div id="briefBody" class="muted">Loading…</div>
+    </div>
+
     <!-- DAILY SIGNAL -->
     <div class="card" id="signalCard">
       <h2>Daily Market Signal</h2>
@@ -243,6 +249,43 @@
     $("stockBody").innerHTML = html;
   }
 
+  // ---- morning briefing ----
+  function tfBox(label, o){
+    if(!o) return '';
+    var mv = o.median_pct, col = (mv==null)?'var(--muted)':(mv>=0?'var(--green)':'var(--red)');
+    var extra = (o.pct_above_ma50!=null) ? (o.pct_above_ma50+'% >MA50')
+              : (o.pct_above_ma200!=null) ? (o.pct_above_ma200+'% >MA200')
+              : (num(o.pct_positive)+'% up');
+    return '<div class="kv"><div class="k">'+label+'</div>'+
+      '<div class="v" style="color:'+col+'">'+num(mv)+'%</div>'+
+      '<div class="k" style="margin-top:2px">'+extra+'</div></div>';
+  }
+  function renderBriefing(d){
+    var m = d.market||{}, tf = d.timeframes||{};
+    var setups = (d.top_setups||[]).map(function(s){
+      return '<span class="pill '+badgeClass(s.final_decision)+'" title="buy '+s.buy_probability+'% · 1m '+num(s.ret_1m)+'%">'+s.symbol+'</span>';
+    }).join(' ');
+    var news = (d.news&&d.news.top&&d.news.top.length)
+      ? d.news.top.map(function(t){return t.symbol+' ('+t.label+')';}).join(', ')
+      : 'No directional news today.';
+    $("briefBody").innerHTML =
+      '<div class="row" style="align-items:center;margin-bottom:4px">'+
+        '<span class="pill '+badgeClass(m.verdict)+'" style="font-size:14px;padding:5px 12px">'+(m.verdict||'—')+'</span>'+
+        '<span class="muted" style="font-size:13px">'+(m.reason||'')+'</span></div>'+
+      '<div class="row" style="margin:12px 0 4px">'+
+        tfBox('Yesterday', tf.day)+tfBox('1 week', tf.week)+tfBox('1 month', tf.month)+tfBox('200 days', tf.d200)+'</div>'+
+      '<div style="margin-top:10px"><span class="k muted" style="font-size:11px;letter-spacing:.5px">RELATIVELY STRONGEST</span><br>'+setups+'</div>'+
+      '<div style="margin-top:10px"><span class="k muted" style="font-size:11px;letter-spacing:.5px">NEWS</span> <span style="font-size:13px">'+news+'</span></div>'+
+      '<div class="note" style="margin-top:10px">'+(d.note||'')+'</div>';
+  }
+  function loadBriefing(){
+    $("briefBody").innerHTML = '<span class="muted">Loading…</span>';
+    api("/briefing").then(renderBriefing).catch(function(e){
+      $("briefBody").innerHTML = '<span class="err">'+e.message+'</span>';
+      if(/key/i.test(e.message)) showGate(e.message);
+    });
+  }
+
   // ---- screeners ----
   var SCR_LABELS = {change_pct:"Chg%", buy_probability:"Buy%", value_traded:"Value",
     vol_ratio:"Vol x", pct_to_52w_high:"% to 52wH", ma50:"MA50", ma200:"MA200",
@@ -339,6 +382,7 @@
   function loadAll(){
     $("signalBody").innerHTML = '<span class="muted">Loading…</span>';
     $("oppBody").innerHTML = '<span class="muted">Loading…</span>';
+    loadBriefing();
     api("/signal").then(renderSignal).catch(function(e){
       $("signalBody").innerHTML = '<span class="err">'+e.message+'</span>';
       if(/key/i.test(e.message)) showGate(e.message);

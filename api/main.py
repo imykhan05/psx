@@ -328,6 +328,19 @@ def get_screener(name: str) -> dict:
     return {"name": name, "as_of_date": data.get("as_of_date"), **scr}
 
 
+BRIEFING_FILE = Path(__file__).resolve().parents[1] / "reports" / "latest" / "morning_briefing.json"
+
+
+@app.get("/briefing", dependencies=[Depends(require_api_key)])
+def get_briefing() -> dict:
+    """Pre-market morning briefing: market pulse, day/week/month/200d trends,
+    top movers, relatively strongest setups, news. Analysis, not a forecast."""
+    data = _read_json(BRIEFING_FILE)
+    if not data:
+        raise HTTPException(status_code=404, detail="No briefing yet. Run the scan first.")
+    return data
+
+
 ALL_STOCKS_FILE = Path(__file__).resolve().parents[1] / "reports" / "latest" / "all_stocks.json"
 
 
