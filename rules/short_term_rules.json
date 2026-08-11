@@ -1,0 +1,109 @@
+{
+  "version": "1.0",
+  "engine": "Short Term AI Scanner",
+
+  "weights": {
+    "trend": 25,
+    "momentum": 20,
+    "volume": 20,
+    "price_action": 15,
+    "historical": 10,
+    "risk": 10
+  },
+
+  "trend": {
+    "above_ema20": 5,
+    "above_ema50": 5,
+    "above_ema100": 5,
+    "above_ema200": 5,
+    "ema20_above_ema50": 5
+  },
+
+  "momentum": {
+    "rsi_50_70": 8,
+    "rsi_40_50": 4,
+    "macd_bullish": 6,
+    "return_3d": 3,
+    "return_5d": 3
+  },
+
+  "volume": {
+    "above_avg5": 5,
+    "above_avg20": 5,
+    "relative_volume": 5,
+    "high_liquidity": 5
+  },
+
+  "price_action": {
+    "close_near_high": 5,
+    "strong_close": 3,
+    "daily_gain": 5,
+    "breakout": 2
+  },
+
+  "historical": {
+    "momentum_confirmed": 4,
+    "five_day_strength": 4,
+    "trend_continuation": 2
+  },
+
+  "risk_penalties": {
+    "winding_up": 25,
+    "non_compliant": 20,
+    "price_below_5": 8,
+    "low_volume": 10,
+    "extended_3d": 3,
+    "extended_5d": 5,
+    "overbought_rsi": 4,
+    "daily_gain_over_10": 4,
+    "illiquid": 15
+  },
+
+  "verdicts": {
+    "strong_buy": 85,
+    "buy_watch": 75,
+    "watch": 60
+  },
+
+  "entry_rules": {
+    "entry_low_percent": 0.985,
+    "entry_high_percent": 1.010,
+    "stop_loss_percent": 0.95,
+    "target1_percent": 1.08,
+    "target2_percent": 1.14
+  },
+
+  "capital_management": {
+    "strong_buy": 0.50,
+    "buy_watch": 0.30,
+    "watch": 0.15,
+    "avoid": 0.00
+  },
+
+  "minimum_history": {
+    "rsi_days": 14,
+    "ema20_days": 20,
+    "ema50_days": 50,
+    "ema100_days": 100,
+    "ema200_days": 200
+  },
+
+  "filters": {
+    "max_price": 500,
+    "minimum_volume": 50000,
+    "exclude_winding_up": true,
+    "exclude_non_compliant": true,
+    "exclude_futures": true
+  },
+
+  "future_features": {
+    "sector_strength": false,
+    "opening_range_breakout": false,
+    "vwap": false,
+    "delivery_volume": false,
+    "institutional_score": false,
+    "market_sentiment": false,
+    "backtesting": false,
+    "machine_learning": false
+  }
+}

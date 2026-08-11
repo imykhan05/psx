@@ -1,0 +1,97 @@
+{
+  "engine_version": "reporting_engine_v3_1_portfolio_lifecycle_wiring",
+  "scan_date": "2026-08-11",
+  "scan_time": "01:43:24",
+  "scan_timestamp": "2026-08-11T01:43:24.357341",
+  "trading_date": "13JUL2026",
+  "trading_date_iso": "2026-07-13",
+  "scan_vs_trading_same_day": false,
+  "data_status": "LATEST_AVAILABLE",
+  "source_verified": true,
+  "market_summary": {
+    "market_mood": "STRONG BEARISH",
+    "market_score": 35,
+    "total_stocks": 512,
+    "advancing": 140,
+    "declining": 335,
+    "unchanged": 37,
+    "advance_decline_ratio": 0.42,
+    "average_change": -0.7,
+    "total_volume": 2622242813
+  },
+  "portfolio_summary": {
+    "engine_version": "portfolio_engine_v5_1_clean_reasons_wait_firewall",
+    "mode": "AI_V5_INSTITUTIONAL_RISK_PARITY",
+    "capital": 50000.0,
+    "market_score": 35.0,
+    "market_mood": "STRONG BEARISH",
+    "dynamic_exposure_pct": 0,
+    "target_positions": 0,
+    "max_positions": 5,
+    "firewall_removed": 465,
+    "eligible_candidates": 0,
+    "selected_positions": 0,
+    "used_capital": 0,
+    "cash_reserve": 50000.0,
+    "capital_utilization_pct": 0,
+    "total_expected_profit_t1": 0,
+    "total_expected_profit_t2": 0,
+    "total_max_loss_to_sl": 0,
+    "portfolio_risk_pct": 0,
+    "portfolio_heat_status": "NO HEAT",
+    "portfolio_health_score": 0,
+    "reason": "No candidates after institutional security firewall"
+  },
+  "lifecycle_summary": {
+    "pending_entries": 0,
+    "open_positions": 2,
+    "partial_exit_positions": 0,
+    "closed_positions": 0,
+    "open_market_value": 20004.05,
+    "unrealized_profit_loss": -42.9,
+    "realized_profit_loss": 0.0
+  },
+  "exit_summary": {
+    "buy_now": 0,
+    "hold": 0,
+    "add_more": 0,
+    "move_stoploss": 0,
+    "trail_stop": 0,
+    "partial_profit": 0,
+    "book_full_profit": 0,
+    "exit_today": 2,
+    "emergency_exit": 0,
+    "no_action": 0
+  },
+  "action_plan_summary": {
+    "total_actions": 465,
+    "action_counts": {
+      "AVOID": 463,
+      "EXIT TODAY": 2
+    }
+  },
+  "sqlite_summary": {
+    "database": "D:\\PSX_AI_SCANNER\\database\\psx_terminal.db",
+    "total_records": 905195,
+    "total_days": 2457,
+    "total_symbols": 985
+  },
+  "history_summary": {
+    "status": "ready",
+    "records": 905195,
+    "symbols": 985,
+    "days": 2457,
+    "avg_days_per_symbol": 918.98,
+    "min_days_per_symbol": 1,
+    "max_days_per_symbol": 2457,
+    "quality_counts": {
+      "EXCELLENT": 568,
+      "POOR": 264,
+      "GOOD": 57,
+      "SHORT": 52,
+      "MEDIUM": 44
+    },
+    "duplicates_removed": 0,
+    "file": "database\\psx_history_clean.csv"
+  }
+}

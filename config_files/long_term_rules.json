@@ -1,0 +1,119 @@
+{
+  "version": "1.0",
+
+  "score_weights": {
+    "fundamental": 30,
+    "growth": 25,
+    "valuation": 20,
+    "dividend": 15,
+    "quality": 10
+  },
+
+  "minimum_requirements": {
+    "minimum_long_term_score": 70,
+    "minimum_confidence": 60,
+    "minimum_market_cap_category": "MID",
+    "minimum_average_volume": 100000,
+    "minimum_years_data": 3
+  },
+
+  "fundamental_rules": {
+    "roe_excellent": 20,
+    "roe_good": 15,
+    "roe_average": 10,
+    "roe_minimum": 8,
+
+    "roa_excellent": 10,
+    "roa_good": 7,
+    "roa_minimum": 4,
+
+    "debt_equity_safe": 0.5,
+    "debt_equity_acceptable": 1.0,
+    "debt_equity_high": 1.5,
+
+    "current_ratio_good": 1.5,
+    "current_ratio_minimum": 1.0,
+
+    "net_margin_good": 10,
+    "net_margin_excellent": 20
+  },
+
+  "growth_rules": {
+    "eps_growth_excellent": 20,
+    "eps_growth_good": 10,
+    "eps_growth_minimum": 5,
+
+    "revenue_growth_excellent": 15,
+    "revenue_growth_good": 8,
+    "revenue_growth_minimum": 3,
+
+    "profit_growth_excellent": 20,
+    "profit_growth_good": 10,
+    "profit_growth_minimum": 5
+  },
+
+  "valuation_rules": {
+    "pe_undervalued": 8,
+    "pe_fair": 15,
+    "pe_expensive": 25,
+
+    "pb_undervalued": 1.0,
+    "pb_fair": 2.0,
+    "pb_expensive": 4.0,
+
+    "margin_of_safety_excellent": 30,
+    "margin_of_safety_good": 20,
+    "margin_of_safety_minimum": 10
+  },
+
+  "dividend_rules": {
+    "minimum_dividend_yield": 3,
+    "good_dividend_yield": 6,
+    "excellent_dividend_yield": 10,
+
+    "minimum_dividend_years": 3,
+    "good_dividend_years": 5,
+    "excellent_dividend_years": 10,
+
+    "safe_payout_ratio": 60,
+    "high_payout_ratio": 85
+  },
+
+  "quality_rules": {
+    "minimum_listing_years": 5,
+    "preferred_listing_years": 10,
+
+    "sector_leader_bonus": 10,
+    "stable_earnings_bonus": 10,
+    "low_debt_bonus": 10,
+    "consistent_dividend_bonus": 10
+  },
+
+  "verdicts": {
+    "strong_buy": 85,
+    "buy": 75,
+    "watch": 65,
+    "avoid": 50
+  },
+
+  "allocation": {
+    "strong_buy": 0.25,
+    "buy": 0.15,
+    "watch": 0.05,
+    "avoid": 0
+  },
+
+  "holding_period": {
+    "minimum_years": 3,
+    "ideal_years": 5,
+    "maximum_years": 10
+  },
+
+  "risk_filters": {
+    "avoid_negative_eps": true,
+    "avoid_high_debt": true,
+    "avoid_no_dividend_for_dividend_portfolio": true,
+    "avoid_extreme_pe": true,
+    "avoid_low_liquidity": true
+  }
+}

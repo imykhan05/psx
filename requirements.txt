@@ -1,0 +1,23 @@
+# PSX AI Scanner — core runtime dependencies
+#
+# Exactly what the live application (main.py + institutional_terminal_v1.py and
+# everything they import under app/) needs to run. Versions pinned to what is
+# verified working on Python 3.14 (ROADMAP.md F0.3).
+#
+# Transitive dependencies (shiboken6, python-dateutil, tzdata, etc.) are
+# resolved automatically by pip and intentionally not listed here.
+#
+# For test tooling see requirements-dev.txt.
+# For the optional PSX data-downloader utilities see requirements-optional.txt.
+
+pandas==3.0.3
+numpy==2.5.0
+
+# Desktop terminal GUI (institutional_terminal_v1.py). Pulls PySide6_Essentials,
+# PySide6_Addons and shiboken6 at the same version automatically.
+PySide6==6.11.1
+
+# LZW decoder for genuine UNIX .Z files. Lazily imported by app/core/parser.py
+# only when a true LZW-compressed .Z is encountered; the current archive is
+# zip/gzip, but the code path exists so the dependency is declared.
+unlzw3==0.2.3

@@ -1,0 +1,151 @@
+{
+  "version": "1.0",
+
+  "short_term": {
+
+    "minimum_ai_score": 60,
+    "strong_buy_score": 90,
+    "buy_score": 80,
+    "watch_score": 65,
+    "avoid_score": 45,
+
+    "minimum_confidence": 60,
+
+    "maximum_price": 300,
+    "minimum_price": 5,
+
+    "minimum_volume": 100000,
+
+    "minimum_reward_risk": 1.5,
+
+    "maximum_spread_percent": 2.0,
+
+    "holding_days": {
+      "minimum": 2,
+      "maximum": 10
+    }
+
+  },
+
+  "long_term": {
+
+    "minimum_ai_score": 75,
+
+    "investment_horizon_years": 5,
+
+    "minimum_dividend_yield": 5,
+
+    "minimum_eps_growth": 10,
+
+    "minimum_roe": 15,
+
+    "maximum_debt_ratio": 0.60,
+
+    "minimum_margin_of_safety": 15
+
+  },
+
+  "trend": {
+
+    "ema20_above_ema50": 10,
+    "ema50_above_ema100": 10,
+    "ema100_above_ema200": 15,
+
+    "price_above_ema20": 8,
+    "price_above_ema50": 8,
+    "price_above_ema100": 8,
+    "price_above_ema200": 10
+
+  },
+
+  "momentum": {
+
+    "macd_bullish": 10,
+
+    "rsi_range": {
+      "minimum": 50,
+      "maximum": 70
+    },
+
+    "atr_expansion": 5,
+
+    "three_day_momentum": 8,
+
+    "five_day_momentum": 10
+
+  },
+
+  "volume": {
+
+    "volume_ratio_1_5": 5,
+
+    "volume_ratio_2": 10,
+
+    "volume_ratio_3": 15
+
+  },
+
+  "market": {
+
+    "market_score_weight": 10,
+
+    "sector_score_weight": 15,
+
+    "ai_score_weight": 45,
+
+    "confidence_weight": 30
+
+  },
+
+  "decision": {
+
+    "strong_buy": 90,
+
+    "buy": 80,
+
+    "wait_confirmation": 70,
+
+    "watch": 60,
+
+    "avoid": 40
+
+  },
+
+  "portfolio": {
+
+    "maximum_positions": 3,
+
+    "allocation": [
+
+      45,
+
+      35,
+
+      20
+
+    ],
+
+    "cash_reserve": {
+
+      "bull_market": 20,
+
+      "sideways_market": 40,
+
+      "bear_market": 65
+
+    }
+
+  },
+
+  "adaptive_ai": {
+
+    "enabled": true,
+
+    "learning_rate": 0.05,
+
+    "minimum_trades_before_learning": 50,
+
+    "auto_adjust_weights": true
+
+  }
+}

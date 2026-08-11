@@ -1,0 +1,30 @@
+# PSX AI Scanner — FastAPI backend dependencies (Phase 2 #4 / deploy Priority 1).
+#
+# This is the ONLY requirements file the Render.com web service installs
+# (see render.yaml -> buildCommand). It is deliberately lean:
+#   - NO PySide6 (desktop GUI; the API never imports it, and Qt needs system
+#     libs that bloat / can break a headless free-tier build).
+#   - NO torch / transformers / feedparser (the ~2GB sentiment model stack).
+#     The API only READS the sentiment cache JSON produced off-box by
+#     tools/refresh_sentiment.py — it never loads the model.
+#
+# Install with:  pip install -r requirements-api.txt
+# Run:           uvicorn api.main:app --host 0.0.0.0 --port $PORT
+# Auth:          send header  X-API-Key: <PSX_API_KEY>
+
+# --- Web layer ---
+fastapi==0.139.0
+uvicorn[standard]==0.51.0
+pydantic==2.13.4
+
+# --- Data layer (api/main.py and nl_query_engine.py import pandas at module
+#     load; pandas pulls numpy, pinned here to match requirements.txt) ---
+pandas==3.0.3
+numpy==2.5.0
+
+# --- /query assistant endpoint (Anthropic API; needs ANTHROPIC_API_KEY set on
+#     Render). anthropic is imported lazily, so a missing key degrades /query to
+#     a clean 503 rather than breaking startup. python-dotenv lets a local .env
+#     work in dev; on Render the vars come from the dashboard. ---
+anthropic==0.121.0
+python-dotenv==1.2.2

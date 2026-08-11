@@ -1,0 +1,71 @@
+{
+  "version": "1.0",
+
+  "global_risk": {
+    "max_portfolio_risk_percent": 6,
+    "max_single_trade_risk_percent": 2,
+    "max_daily_loss_percent": 3,
+    "max_weekly_loss_percent": 7,
+    "max_monthly_loss_percent": 15
+  },
+
+  "trade_risk": {
+    "minimum_reward_risk": 1.5,
+    "ideal_reward_risk": 2.0,
+    "maximum_stop_loss_percent": 6,
+    "default_stop_loss_percent": 5,
+    "tight_stop_loss_percent": 3,
+    "wide_stop_loss_percent": 8
+  },
+
+  "liquidity_risk": {
+    "minimum_volume": 100000,
+    "preferred_volume": 500000,
+    "high_liquidity_volume": 1000000,
+    "low_volume_penalty": 10,
+    "very_low_volume_penalty": 20
+  },
+
+  "price_risk": {
+    "minimum_price": 5,
+    "penny_stock_price": 10,
+    "maximum_price_short_term": 300,
+    "penny_stock_penalty": 8,
+    "very_low_price_penalty": 15
+  },
+
+  "market_risk": {
+    "strong_bullish_min_score": 85,
+    "bullish_min_score": 70,
+    "neutral_min_score": 50,
+    "bearish_below_score": 40,
+    "strong_bearish_below_score": 25
+  },
+
+  "sector_risk": {
+    "minimum_sector_score_for_buy": 65,
+    "weak_sector_below_score": 50,
+    "max_sector_exposure_percent": 35
+  },
+
+  "corporate_risk": {
+    "exclude_winding_up": true,
+    "exclude_non_compliant": true,
+    "winding_up_penalty": 50,
+    "non_compliant_penalty": 40
+  },
+
+  "decision_blocks": {
+    "block_buy_if_market_score_below": 40,
+    "block_buy_if_sector_score_below": 50,
+    "block_buy_if_confidence_below": 55,
+    "block_buy_if_reward_risk_below": 1.2,
+    "block_buy_if_volume_below": 100000
+  },
+
+  "risk_labels": {
+    "low_risk_max_penalty": 5,
+    "medium_risk_max_penalty": 15,
+    "high_risk_min_penalty": 16
+  }
+}

@@ -1,0 +1,41 @@
+{
+  "engine_version": "daily_signal_engine_v1",
+  "date": "2026-07-13",
+  "generated_at": "2026-08-11T01:05:40+00:00",
+  "verdict": "BEARISH",
+  "confidence": 0.69,
+  "bullishness": 0.3087,
+  "reasons": [
+    "70% of scanned stocks declined today (300 down vs 129 up) - weak breadth",
+    "0 of 465 scored stocks rated BUY or WATCH - the rules flag no opportunities today",
+    "News sentiment bullish on MCB"
+  ],
+  "top_opportunities": [
+    "MCB",
+    "CNERGY",
+    "AHL",
+    "JSCL",
+    "FEM"
+  ],
+  "sentiment_summary": {
+    "bullish": 1,
+    "bearish": 0,
+    "neutral": 9
+  },
+  "breadth": {
+    "total": 465,
+    "advancers": 129,
+    "decliners": 300,
+    "flat": 36,
+    "advance_ratio": 0.3007
+  },
+  "decisions": {
+    "scored": 465,
+    "actionable": 0,
+    "actionable_ratio": 0.0
+  },
+  "inputs": {
+    "scan_rows": 465,
+    "sentiment_source": "live"
+  }
+}

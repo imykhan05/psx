@@ -1,0 +1,115 @@
+{
+    "version": "1.0",
+    "last_updated": "2026-07-07 17:07:11",
+    "auto_learning": true,
+    "learning_rate": 0.05,
+    "maximum_single_update": 4,
+    "minimum_history_trades": 30,
+    "score_scale": {
+        "minimum": 0,
+        "maximum": 100
+    },
+    "weights": {
+        "macd_bullish": {
+            "weight": 12,
+            "minimum": 2,
+            "maximum": 25
+        },
+        "ema20_bullish": {
+            "weight": 10,
+            "minimum": 2,
+            "maximum": 25
+        },
+        "ema50_bullish": {
+            "weight": 8,
+            "minimum": 2,
+            "maximum": 20
+        },
+        "ema200_bullish": {
+            "weight": 6,
+            "minimum": 2,
+            "maximum": 20
+        },
+        "rsi_bullish": {
+            "weight": 8,
+            "minimum": 2,
+            "maximum": 20
+        },
+        "volume_spike": {
+            "weight": 10,
+            "minimum": 2,
+            "maximum": 25
+        },
+        "close_strong": {
+            "weight": 12,
+            "minimum": 2,
+            "maximum": 25
+        },
+        "close_near_high": {
+            "weight": 14,
+            "minimum": 2,
+            "maximum": 25
+        },
+        "healthy_gain": {
+            "weight": 10,
+            "minimum": 2,
+            "maximum": 20
+        },
+        "liquid": {
+            "weight": 10,
+            "minimum": 2,
+            "maximum": 20
+        },
+        "highly_liquid": {
+            "weight": 6,
+            "minimum": 2,
+            "maximum": 20
+        },
+        "market_strength": {
+            "weight": 8,
+            "minimum": 2,
+            "maximum": 20
+        },
+        "sector_strength": {
+            "weight": 8,
+            "minimum": 2,
+            "maximum": 20
+        },
+        "probability_score": {
+            "weight": 12,
+            "minimum": 5,
+            "maximum": 30
+        },
+        "confidence_score": {
+            "weight": 12,
+            "minimum": 5,
+            "maximum": 30
+        }
+    },
+    "learning_rules": {
+        "strong_increase": {
+            "minimum_win_rate": 62,
+            "minimum_return": 3.0,
+            "weight_change": 4
+        },
+        "increase": {
+            "minimum_win_rate": 58,
+            "minimum_return": 2.0,
+            "weight_change": 2
+        },
+        "keep": {
+            "minimum_win_rate": 50,
+            "minimum_return": 1.0,
+            "weight_change": 0
+        },
+        "decrease": {
+            "maximum_win_rate": 45,
+            "maximum_return": 0.0,
+            "weight_change": -3
+        }
+    },
+    "history": {
+        "save_every_learning": true,
+        "keep_versions": 100
+    }
+}

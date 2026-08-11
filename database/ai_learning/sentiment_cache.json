@@ -1,0 +1,256 @@
+{
+  "engine_version": "news_sentiment_engine_v1",
+  "generated_at": "2026-08-11T11:42:28+00:00",
+  "source": "live",
+  "errors": [],
+  "headline_count": 280,
+  "matched_headlines": 19,
+  "tickers_with_news": 16,
+  "model": "cardiffnlp/twitter-roberta-base-sentiment",
+  "model_available": true,
+  "model_error": null,
+  "tickers": {
+    "AGP": {
+      "symbol": "AGP",
+      "n_headlines": 1,
+      "sentiment_score": 0.0,
+      "sentiment_label": "NEUTRAL",
+      "sample_headlines": [
+        {
+          "source": "dawn_business",
+          "title": "IHC seeks govt reply over withholding tax hike on goods transportation",
+          "label": "neutral",
+          "score": 0.6512
+        }
+      ]
+    },
+    "AHL": {
+      "symbol": "AHL",
+      "n_headlines": 1,
+      "sentiment_score": 0.0,
+      "sentiment_label": "NEUTRAL",
+      "sample_headlines": [
+        {
+          "source": "dawn_business",
+          "title": "Stocks turn red amid volatile trading",
+          "label": "neutral",
+          "score": 0.608
+        }
+      ]
+    },
+    "ATRL": {
+      "symbol": "ATRL",
+      "n_headlines": 1,
+      "sentiment_score": 0.0,
+      "sentiment_label": "NEUTRAL",
+      "sample_headlines": [
+        {
+          "source": "dawn_business",
+          "title": "Stocks turn red amid volatile trading",
+          "label": "neutral",
+          "score": 0.608
+        }
+      ]
+    },
+    "CNERGY": {
+      "symbol": "CNERGY",
+      "n_headlines": 1,
+      "sentiment_score": 0.0,
+      "sentiment_label": "NEUTRAL",
+      "sample_headlines": [
+        {
+          "source": "dawn_business",
+          "title": "Stocks turn red amid volatile trading",
+          "label": "neutral",
+          "score": 0.608
+        }
+      ]
+    },
+    "ENGROH": {
+      "symbol": "ENGROH",
+      "n_headlines": 1,
+      "sentiment_score": 0.0,
+      "sentiment_label": "NEUTRAL",
+      "sample_headlines": [
+        {
+          "source": "dawn_business",
+          "title": "Stocks turn red amid volatile trading",
+          "label": "neutral",
+          "score": 0.608
+        }
+      ]
+    },
+    "KEL": {
+      "symbol": "KEL",
+      "n_headlines": 2,
+      "sentiment_score": 0.0,
+      "sentiment_label": "NEUTRAL",
+      "sample_headlines": [
+        {
+          "source": "dawn_business",
+          "title": "Power consumers to pay 75 paisa per unit FCA in August bills",
+          "label": "neutral",
+          "score": 0.7919
+        },
+        {
+          "source": "dawn_business",
+          "title": "Domestic, foreign investors show interest in Fesco privatisation: privatisation commission",
+          "label": "neutral",
+          "score": 0.718
+        }
+      ]
+    },
+    "KTML": {
+      "symbol": "KTML",
+      "n_headlines": 1,
+      "sentiment_score": 0.0,
+      "sentiment_label": "NEUTRAL",
+      "sample_headlines": [
+        {
+          "source": "dawn_business",
+          "title": "Domestic, foreign investors show interest in Fesco privatisation: privatisation commission",
+          "label": "neutral",
+          "score": 0.718
+        }
+      ]
+    },
+    "LUCK": {
+      "symbol": "LUCK",
+      "n_headlines": 2,
+      "sentiment_score": 0.0,
+      "sentiment_label": "NEUTRAL",
+      "sample_headlines": [
+        {
+          "source": "dawn_business",
+          "title": "Stocks turn red amid volatile trading",
+          "label": "neutral",
+          "score": 0.608
+        },
+        {
+          "source": "dawn_business",
+          "title": "Domestic, foreign investors show interest in Fesco privatisation: privatisation commission",
+          "label": "neutral",
+          "score": 0.718
+        }
+      ]
+    },
+    "MARI": {
+      "symbol": "MARI",
+      "n_headlines": 1,
+      "sentiment_score": 0.0,
+      "sentiment_label": "NEUTRAL",
+      "sample_headlines": [
+        {
+          "source": "dawn_business",
+          "title": "Stocks turn red amid volatile trading",
+          "label": "neutral",
+          "score": 0.608
+        }
+      ]
+    },
+    "MEBL": {
+      "symbol": "MEBL",
+      "n_headlines": 1,
+      "sentiment_score": 0.0,
+      "sentiment_label": "NEUTRAL",
+      "sample_headlines": [
+        {
+          "source": "dawn_business",
+          "title": "Stocks turn red amid volatile trading",
+          "label": "neutral",
+          "score": 0.608
+        }
+      ]
+    },
+    "MLCF": {
+      "symbol": "MLCF",
+      "n_headlines": 1,
+      "sentiment_score": 0.0,
+      "sentiment_label": "NEUTRAL",
+      "sample_headlines": [
+        {
+          "source": "dawn_business",
+          "title": "Domestic, foreign investors show interest in Fesco privatisation: privatisation commission",
+          "label": "neutral",
+          "score": 0.718
+        }
+      ]
+    },
+    "NML": {
+      "symbol": "NML",
+      "n_headlines": 1,
+      "sentiment_score": 0.0,
+      "sentiment_label": "NEUTRAL",
+      "sample_headlines": [
+        {
+          "source": "dawn_business",
+          "title": "Domestic, foreign investors show interest in Fesco privatisation: privatisation commission",
+          "label": "neutral",
+          "score": 0.718
+        }
+      ]
+    },
+    "NRL": {
+      "symbol": "NRL",
+      "n_headlines": 1,
+      "sentiment_score": 0.0,
+      "sentiment_label": "NEUTRAL",
+      "sample_headlines": [
+        {
+          "source": "dawn_business",
+          "title": "Stocks turn red amid volatile trading",
+          "label": "neutral",
+          "score": 0.608
+        }
+      ]
+    },
+    "PAEL": {
+      "symbol": "PAEL",
+      "n_headlines": 1,
+      "sentiment_score": 0.0,
+      "sentiment_label": "NEUTRAL",
+      "sample_headlines": [
+        {
+          "source": "dawn_business",
+          "title": "Domestic, foreign investors show interest in Fesco privatisation: privatisation commission",
+          "label": "neutral",
+          "score": 0.718
+        }
+      ]
+    },
+    "PSX": {
+      "symbol": "PSX",
+      "n_headlines": 2,
+      "sentiment_score": 0.0,
+      "sentiment_label": "NEUTRAL",
+      "sample_headlines": [
+        {
+          "source": "dawn_business",
+          "title": "Stocks turn red amid volatile trading",
+          "label": "neutral",
+          "score": 0.608
+        },
+        {
+          "source": "dawn_business",
+          "title": "PSX ends two-session rally, sheds 347 points amid profit-taking",
+          "label": "neutral",
+          "score": 0.8214
+        }
+      ]
+    },
+    "UBL": {
+      "symbol": "UBL",
+      "n_headlines": 1,
+      "sentiment_score": 0.0,
+      "sentiment_label": "NEUTRAL",
+      "sample_headlines": [
+        {
+          "source": "dawn_business",
+          "title": "Stocks turn red amid volatile trading",
+          "label": "neutral",
+          "score": 0.608
+        }
+      ]
+    }
+  }
+}

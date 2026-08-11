@@ -1,0 +1,32 @@
+# Render.com Blueprint for the PSX AI Scanner API.
+# Spec: https://render.com/docs/blueprint-spec
+#
+# Provisions ONE free-tier Python web service serving the read-only API.
+# - Installs requirements-api.txt ONLY (lean: no PySide6, no torch/transformers).
+# - Reads its data from the repo checkout. Data is refreshed via the
+#   git-commit-on-refresh model: tools/publish_outputs.py pushes the small output
+#   files to `main`, and autoDeploy redeploys the service with the fresh data.
+#
+# To use: commit this file, then in Render pick "New +" -> "Blueprint" and point
+# it at your GitHub repo. Render reads this file and creates the service.
+
+services:
+  - type: web
+    name: psx-ai-scanner-api
+    runtime: python
+    plan: free
+    region: singapore              # closest Render region to Pakistan; change if you like
+    branch: main
+    buildCommand: "pip install -r requirements-api.txt"
+    startCommand: "uvicorn api.main:app --host 0.0.0.0 --port $PORT"
+    healthCheckPath: /health        # open (no auth); Render uses it to confirm the service is live
+    autoDeploy: true                # redeploy automatically on every push to main
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.12.7"             # a version with prebuilt wheels for the pinned pandas/numpy
+      - key: PSX_API_KEY
+        sync: false                 # SET THE REAL VALUE IN THE RENDER DASHBOARD — never in git
+      - key: PSX_CORS_ORIGINS
+        value: "*"                  # tighten to your web app's origin once it's deployed
+      - key: ANTHROPIC_API_KEY
+        sync: false                 # optional; only the /query assistant endpoint needs it

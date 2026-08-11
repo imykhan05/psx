@@ -1,0 +1,26 @@
+# PSX AI Scanner — optional dependencies for the data-downloader utilities
+#
+# Only needed if you run the standalone PSX data-fetching scripts:
+#   psx_daily_downloader.py
+#   psx_history_downloader.py
+# These are NOT part of the live scanner pipeline (main.py) or the desktop
+# terminal — they fetch source data via a headless browser.
+#
+# Install with:  pip install -r requirements-optional.txt
+# Then install the browser binaries once:  playwright install chromium
+
+playwright==1.61.0
+
+# --- News Sentiment Engine (app/engines/news_sentiment_engine_v1.py) ---
+# Optional. main.py runs the sentiment step only if these are importable and
+# skips it gracefully otherwise (or use --skip-news). transformers+torch are
+# large (~2GB) and download a ~500MB model on first use.
+feedparser==6.0.14
+transformers==5.15.0
+torch==2.13.0
+
+# --- Natural-language assistant (app/engines/nl_query_engine.py) ---
+# Optional. The terminal's "AI Assistant" tab and tools/ask.py use these to
+# answer questions via the Anthropic API. Needs ANTHROPIC_API_KEY in .env.
+anthropic==0.121.0
+python-dotenv==1.2.2

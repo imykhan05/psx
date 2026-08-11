@@ -1,0 +1,84 @@
+{
+  "application": {
+    "name": "PSX AI Terminal",
+    "version": "0.6.0",
+    "environment": "production",
+    "timezone": "Asia/Karachi",
+    "currency": "PKR",
+    "default_capital": 50000,
+    "default_max_price": 300
+  },
+
+  "database": {
+    "engine": "sqlite",
+    "database_file": "database/psx_terminal.db",
+    "auto_backup": true,
+    "backup_days": 30
+  },
+
+  "scanner": {
+    "minimum_volume": 100000,
+    "minimum_price": 5,
+    "maximum_price": 300,
+    "minimum_history_days": 200,
+    "top_results": 25
+  },
+
+  "market": {
+    "bullish_score": 70,
+    "neutral_score": 50,
+    "bearish_score": 35,
+    "strong_bullish_score": 85,
+    "strong_bearish_score": 20
+  },
+
+  "portfolio": {
+    "default_capital": 50000,
+    "max_open_positions": 3,
+    "cash_reserve_percent": 40,
+    "risk_per_trade_percent": 2,
+    "max_sector_exposure_percent": 35
+  },
+
+  "risk": {
+    "default_stop_loss_percent": 5,
+    "default_target1_percent": 8,
+    "default_target2_percent": 15,
+    "minimum_reward_risk": 1.5
+  },
+
+  "indicators": {
+    "ema_fast": 20,
+    "ema_medium": 50,
+    "ema_long": 100,
+    "ema_very_long": 200,
+    "rsi_period": 14,
+    "macd_fast": 12,
+    "macd_slow": 26,
+    "macd_signal": 9,
+    "atr_period": 14,
+    "volume_average_days": 5
+  },
+
+  "ai": {
+    "minimum_ai_score": 60,
+    "strong_buy_score": 85,
+    "buy_score": 75,
+    "watch_score": 60,
+    "avoid_score": 40,
+    "minimum_confidence": 60
+  },
+
+  "reports": {
+    "generate_html": true,
+    "generate_excel": true,
+    "generate_pdf": false,
+    "reports_folder": "reports"
+  },
+
+  "logging": {
+    "enabled": true,
+    "level": "INFO",
+    "save_log_files": true
+  }
+}

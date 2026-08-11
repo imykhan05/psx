@@ -1,0 +1,14 @@
+# Normalise line endings: store text as LF in the repo (correct for the Linux
+# Render build), check out native on each OS. Prevents spurious CRLF diffs.
+* text=auto
+
+# Explicitly treat known binaries as binary (never touch their bytes).
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.pdf binary
+*.Z binary
+*.zip binary
+*.apk binary
