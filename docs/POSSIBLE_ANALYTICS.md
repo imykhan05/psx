@@ -60,12 +60,12 @@ we have: **end-of-day OHLCV** (open/high/low/close/volume) for ~985 symbols,
 - Up-volume vs down-volume for the whole market
 - Breadth by price tier / by sector
 
-## 7. Sector & rotation — 🟢 FACT  *(your "crocodiles rotate" idea, at sector level)*
-- Sector performance leaderboard (which sectors up/down, any window)
-- **Sector rotation map** — money moving from one sector to the next week-over-week
-- Relative strength: stock vs its sector vs the market
-- Sector breadth & sector volume surges
-- "Hot sector → strongest stocks in it" drill-down
+## 7. Sector & rotation — ✅ BUILT / 🟢 FACT  *(your "crocodiles rotate" idea, at sector level)*
+- Sector performance leaderboard (1d/1w/1m/200d) ✅
+- **Sector rotation flag** — accelerating vs fading (this week's pace vs last month's) ✅
+- Sector breadth (% above MA50) + sustained-volume + value share ✅
+- "Hot sector → strongest stocks in it" drill-down (top stocks per sector) ✅
+- Still to add: relative strength vs a KSE-index proxy; week-over-week rank shift history
 
 ## 8. Relative strength & ranking — 🟢 FACT
 - Rank every stock by return / volume / RS ✅ (All-Stocks list built)
