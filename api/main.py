@@ -27,7 +27,7 @@ from pathlib import Path
 import pandas as pd
 from fastapi import Depends, FastAPI, Header, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse, StreamingResponse
+from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
 from pydantic import BaseModel, Field
 
 # Reuse the engine's data locations and helpers — single source of truth.
@@ -115,6 +115,21 @@ class QueryRequest(BaseModel):
 # ---------------------------------------------------------------------------
 # Endpoints
 # ---------------------------------------------------------------------------
+WEBUI_FILE = Path(__file__).resolve().parent / "webui.html"
+
+
+@app.get("/", include_in_schema=False)
+def home():
+    """Built-in web UI: open the URL, enter the API key, see the data.
+
+    The page itself loads without a key; it prompts for the key and then calls
+    the same-origin endpoints below with the X-API-Key header.
+    """
+    if WEBUI_FILE.exists():
+        return FileResponse(WEBUI_FILE, media_type="text/html")
+    return JSONResponse({"service": "psx-ai-scanner-api", "docs": "/docs"})
+
+
 @app.get("/health")
 def health() -> dict:
     """Liveness + which data artifacts are present. No auth (health checks are open)."""
