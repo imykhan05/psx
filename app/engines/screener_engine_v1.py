@@ -73,6 +73,10 @@ def _load_prices() -> pd.DataFrame:
         con.close()
 
     df["date_parsed"] = pd.to_datetime(df["date_parsed"], format="ISO8601", errors="coerce")
+    # Drop government paper / debt (PIB & Sukuk like 'P01GHS...', Term Finance
+    # Certificates '...TFC...') — these are not equities and clutter stock screeners.
+    sym = df["symbol"].astype(str)
+    df = df[~(sym.str.match(r"^P\d") | sym.str.contains("TFC", na=False))]
     df = df.sort_values(["symbol", "date_parsed"])
     for col in ("open", "high", "low", "close", "volume", "prev_close", "change_pct"):
         df[col] = pd.to_numeric(df[col], errors="coerce")
@@ -86,6 +90,8 @@ def _load_prices() -> pd.DataFrame:
     df["rvol5"] = g["volume"].transform(lambda s: s.rolling(5, min_periods=3).mean()) / df["avg_vol20"]
     df["hi52"] = g["high"].transform(lambda s: s.rolling(252, min_periods=30).max())
     df["lo52"] = g["low"].transform(lambda s: s.rolling(252, min_periods=30).min())
+    df["hi20"] = g["high"].transform(lambda s: s.rolling(20, min_periods=15).max())
+    df["lo20"] = g["low"].transform(lambda s: s.rolling(20, min_periods=15).min())
     # N-trading-days-ago close for multi-timeframe returns (1w=5, 1m=21, 200d).
     df["c_1w"] = g["close"].transform(lambda s: s.shift(5))
     df["c_1m"] = g["close"].transform(lambda s: s.shift(21))
@@ -149,6 +155,8 @@ def _merged_frame() -> pd.DataFrame:
     df["above_ma200"] = df["close"] > df["ma200"]
     df["vol_ratio"] = df["volume"] / df["avg_vol20"]
     df["pct_to_52w_high"] = (df["hi52"] - df["close"]) / df["hi52"] * 100.0
+    df["dist_hi20"] = (df["hi20"] - df["close"]) / df["close"] * 100.0
+    df["range20"] = (df["hi20"] - df["lo20"]) / df["lo20"] * 100.0
     return df
 
 
@@ -263,6 +271,35 @@ def build_screeners(df: pd.DataFrame | None = None) -> dict:
         "Within 5% of the 52-week high.",
         df[(df["pct_to_52w_high"] >= 0) & (df["pct_to_52w_high"] <= 5)],
         "pct_to_52w_high", True, ["hi52", "pct_to_52w_high", "final_decision"])
+
+    # ---- patterns & levels (#9) ----
+    add("breakout_vol", "Breakout on volume (new 20-day high)",
+        "Closed at a new 20-day high WITH sustained volume (5d avg >= 1.3x the 20d) "
+        "— the classic accumulation-then-breakout. A setup to watch, not a "
+        "guaranteed continuation.",
+        df[(df["close"] >= df["hi20"] * 0.999) & (df["rvol5"] >= 1.3)],
+        "rvol5", False, ["rvol5", "change_pct", "hi20", "final_decision"])
+
+    add("near_breakout", "Near breakout (just under 20-day high)",
+        "Coiling within 3% below its 20-day high — a break above (ideally on volume) "
+        "could trigger a move. Watch, don't assume.",
+        df[(df["dist_hi20"] >= 0.1) & (df["dist_hi20"] <= 3.0)],
+        "dist_hi20", True, ["dist_hi20", "rvol5", "change_pct", "final_decision"])
+
+    coil_thr = float(df["range20"].quantile(0.20)) if df["range20"].notna().any() else None
+    if coil_thr is not None:
+        add("coil", "Tight consolidation (coiling)",
+            "20-day price range is in the tightest ~20% of the market — a "
+            "low-volatility 'coil' that sometimes precedes a bigger move (either "
+            "direction). Direction is not predicted.",
+            df[(df["range20"] <= coil_thr) & (df["range20"] > 0)],
+            "range20", True, ["range20", "rvol5", "change_pct", "final_decision"])
+
+    add("pullback_uptrend", "Pullback to MA50 in an uptrend",
+        "Above the 200-day MA (long-term up) and now within ~4% of the 50-day MA — "
+        "a pullback to support inside an uptrend. A setup, not a guarantee.",
+        df[df["above_ma200"] & (df["close"] >= df["ma50"]) & (df["close"] <= df["ma50"] * 1.04)],
+        "buy_probability", False, ["ma50", "change_pct", "final_decision"])
 
     # ---- scored screeners (only if the scan provided the columns) ----
     if df["final_decision"].notna().any():
