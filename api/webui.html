@@ -258,6 +258,30 @@
         kv("T1", num(sc.target_1))+
         kv("T2", num(sc.target_2))+
       '</div>';
+    var t = d.technicals || {};
+    if(t && t.history_days){
+      function tcol(v){ var n=Number(v); return (v==null)?"var(--muted)":(n>=0?"var(--green)":"var(--red)"); }
+      html += '<div class="k muted" style="font-size:11px;letter-spacing:.5px;margin-top:14px">RETURNS</div>'+
+        '<div class="row" style="margin-top:6px">'+
+          kv("1w", num(t.ret_1w)+"%", tcol(t.ret_1w))+ kv("1m", num(t.ret_1m)+"%", tcol(t.ret_1m))+
+          kv("3m", num(t.ret_3m)+"%", tcol(t.ret_3m))+ kv("6m", num(t.ret_6m)+"%", tcol(t.ret_6m))+
+          kv("1y", num(t.ret_1y)+"%", tcol(t.ret_1y))+
+        '</div>'+
+        '<div class="k muted" style="font-size:11px;letter-spacing:.5px;margin-top:14px">TECHNICALS</div>'+
+        '<div class="row" style="margin-top:6px">'+
+          kv("RSI(14)", num(t.rsi14,1))+ kv("Volatility", num(t.volatility_20d)+"%")+
+          kv("ATR%", num(t.atr_pct)+"%")+ kv("Max DD 1y", num(t.max_drawdown_1y)+"%", "var(--red)")+
+          kv("Streak", (t.streak_days>0?"+":"")+t.streak_days+"d", tcol(t.streak_days))+
+          kv("Gap", num(t.gap_today)+"%", tcol(t.gap_today))+
+        '</div>'+
+        '<div class="row" style="margin-top:10px">'+
+          kv("52w high", num(t.high_52w))+ kv("52w low", num(t.low_52w))+
+          kv("% from high", num(t.pct_from_52w_high)+"%", tcol(t.pct_from_52w_high))+
+          kv("vs MA50", num(t.pct_from_ma50)+"%", tcol(t.pct_from_ma50))+
+          kv("vs MA200", num(t.pct_from_ma200)+"%", tcol(t.pct_from_ma200))+
+          kv("Rel Vol", num(t.rvol))+
+        '</div>';
+    }
     if(sn){
       html += '<div class="row" style="margin-top:10px">'+
         kv("News", '<span class="pill '+badgeClass(sn.sentiment_label)+'">'+(sn.sentiment_label||"—")+'</span>')+

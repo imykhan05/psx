@@ -287,12 +287,19 @@ def get_stock(ticker: str) -> dict:
     sentiment_cache = _read_json(SENTIMENT_CACHE)
     ticker_sentiment = (sentiment_cache.get("tickers", {}) or {}).get(symbol)
 
+    try:
+        from app.engines.stock_technicals import compute_technicals
+        technicals = compute_technicals(symbol)
+    except Exception:
+        technicals = {}
+
     return {
         "symbol": symbol,
         "company": text("company"),
         "sector": text("sector"),
         "price": price,
         "scoring": scoring,
+        "technicals": technicals,       # full per-stock panel (facts)
         "news_sentiment": ticker_sentiment,  # None if no news matched this ticker
     }
 
