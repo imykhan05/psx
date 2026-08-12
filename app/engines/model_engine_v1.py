@@ -37,24 +37,26 @@ FWD = 10
 MIN_PRICE = 2.0
 LOOKBACK_FIT_DAYS = 1500  # ~6y of history is plenty to fit 7 coefficients
 
-# Measured out-of-sample track record (from tools/build_model.py, 2019-2026).
+# Measured track record (tools/build_model.py + tools/backtest_model.py, 2018-2026).
 VALIDATION = {
     "method": "walk-forward out-of-sample, cross-sectional linear model",
     "horizon_days": FWD,
-    "avg_longshort_spread_pct": 3.76,
-    "avg_net_of_cost_pct": 3.16,
-    "years_tested": 8,
-    "years_beating_cost": 7,
-    "worst_year": "2025 (net -0.3%)",
-    "ic_range": "0.05-0.12",
+    "raw_decile_spread_pct": 3.76,   # full universe — INFLATED by illiquid names
+    "tradeable_edge": "NONE — underperforms the market on liquid stocks",
+    "liquid_backtest": "long-only, after-cost, >=25m PKR/day traded: model CAGR "
+                       "-10.5% vs market +6.4% (see docs/EDGE_VALIDATION.md)",
+    "verdict": "a contrarian research ranking, NOT a tradeable buy list",
 }
 CAVEATS = [
-    "Diversified basket edge over ~2 weeks — NOT a per-stock 80% prediction (IC ~0.08).",
-    "Much of the spread is long-SHORT; shorting is impractical on PSX, so long-only "
-    "captures roughly half.",
-    "Costs, slippage and low liquidity in small names can erode the net edge.",
-    "One tested year (2025) was flat/negative — the edge is real on average, not every year.",
-    "Past out-of-sample performance is not a guarantee of future results.",
+    "CRITICAL — LIQUIDITY MIRAGE: the raw back-test edge lives only in tiny illiquid "
+    "stocks you cannot actually trade. On genuinely liquid names, a long-only "
+    "after-cost backtest UNDERPERFORMS the market (~-10% CAGR vs +6%) with huge "
+    "drawdowns. This is NOT a money machine.",
+    "Use it as a contrarian research lens (it flags beaten-down, high-volume names) "
+    "— a starting point for your own work, never an automatic buy.",
+    "Not a per-stock prediction (cross-sectional IC ~0.08); definitely not 80%.",
+    "Real bid-ask spread, price impact and circuit locks are NOT in the numbers.",
+    "Past performance is not a guarantee of future results. Not financial advice.",
 ]
 
 
@@ -155,10 +157,11 @@ def build_model_picks(top_n: int = 30) -> dict:
         "coefficients": {f: round(float(c), 4) for f, c in zip(FEATURES, coef)},
         "validation": VALIDATION,
         "caveats": CAVEATS,
-        "note": ("Relative ranking from a walk-forward-validated linear model. The "
-                 "top names, as a diversified basket, have historically beaten the "
-                 "bottom over ~2 weeks out-of-sample. A real but SMALL edge — read the "
-                 "caveats. Not financial advice."),
+        "note": ("Contrarian RESEARCH ranking (favours beaten-down, high-volume "
+                 "names). Its back-tested edge is a LIQUIDITY MIRAGE — on stocks you "
+                 "can actually trade it UNDERPERFORMS the market (see caveats). Use "
+                 "as a starting point for your own research, NOT a buy list. Not "
+                 "financial advice."),
         "top": top,
         "bottom": bottom,
     }

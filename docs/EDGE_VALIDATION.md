@@ -105,6 +105,33 @@ vol_ratio +0.13, mom_21 +0.12, rvol_5 +0.08).
 - Past OOS performance ≠ future results.
 
 Shipped as **`app/engines/model_engine_v1.py`** (fits on history, ranks today's
-stocks) → `GET /model` → the "Model picks" card. This is the honest version of a
-"what to consider" model: a small, validated edge, labelled with its real track
-record and limits — never an 80% guarantee.
+stocks) → `GET /model` → the "Model picks" card.
+
+---
+
+## CRITICAL correction — the edge is a LIQUIDITY MIRAGE (`tools/backtest_model.py`)
+
+A long-only, after-cost, walk-forward backtest (buy top-10 every 10 days, 0.7%
+round-trip) exposes the truth. The decile spread above was computed over the FULL
+universe, which is dominated by tiny illiquid stocks you cannot actually trade.
+Filter to genuinely tradeable names and the edge collapses:
+
+| Universe (20-day avg traded value) | Model CAGR | Market CAGR | max DD |
+|------------------------------------|-----------:|------------:|-------:|
+| ALL stocks (incl. illiquid) | **+118.5%** | +27.2% | −41.7% |
+| ≥ 5m PKR/day | **−5.4%** | +10.5% | −66.9% |
+| ≥ 25m PKR/day (genuinely liquid) | **−10.5%** | +6.4% | −73.8% |
+| ≥ 100m PKR/day (very liquid) | +12.2% | +19.2% | −52.2% |
+
+**On stocks you can actually buy and sell, the model does NOT beat the market — it
+underperforms**, with brutal drawdowns. The headline +118% exists only in small,
+illiquid names where real bid-ask spreads, price impact and circuit locks (all
+ignored by close-to-close returns) would erase the paper gains.
+
+### The honest bottom line
+There is **no tradeable, market-beating edge** here. The model's ranking is a
+useful *contrarian research lens* (it finds beaten-down, high-volume names), but it
+is **not** a buy list and **not** a money machine. Presenting the +118% as real
+would have been dangerously misleading — this liquidity test is exactly why it is
+not presented that way. *(Rule 9: a negative result is a valid — and here,
+protective — result.)*

@@ -29,8 +29,9 @@ def test_model_picks_structure(tmp_path, monkeypatch):
     assert p["universe"] >= 2
     assert len(p["top"]) >= 1
     assert set(me.FEATURES) == set(p["coefficients"].keys())
-    # the honest track record + caveats travel with the output
-    assert p["validation"]["years_beating_cost"] == 7
+    # the honest, corrected track record + caveats travel with the output
+    assert "NONE" in p["validation"]["tradeable_edge"]
     assert len(p["caveats"]) >= 4
-    assert "not" in p["note"].lower()
+    assert "MIRAGE" in p["caveats"][0]
+    assert "not a buy list" in p["note"].lower()
     assert p["top"][0]["model_score"] is not None
