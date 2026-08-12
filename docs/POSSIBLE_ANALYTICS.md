@@ -17,15 +17,15 @@ we have: **end-of-day OHLCV** (open/high/low/close/volume) for ~985 symbols,
 
 ---
 
-## 1. Price & return analytics — 🟢 FACT
-- Returns over any window: 1d ✅, 1w ✅, 1m ✅, 200d ✅, plus 3m, 6m, 1y, YTD, since-listing
-- 52-week high / low + distance from them ✅ (near-52w-high built)
-- All-time high / low + distance
-- Volatility (return std-dev), Average True Range (ATR)
-- Max drawdown from peak, current drawdown
-- Gap analysis (today's open vs yesterday's close)
-- Consecutive up / down day streaks
-- Best/worst day, week, month per stock
+## 1. Price & return analytics — ✅ BUILT / 🟢 FACT
+- Returns 1w/1m/3m/6m/1y (+1d, 200d) ✅ (per-stock panel in the lookup)
+- 52-week high / low + distance from each ✅
+- Volatility (20-day return std-dev) + ATR / ATR% ✅
+- 1-year max drawdown ✅
+- Gap (today's open vs yesterday's close) ✅
+- Up / down day streak ✅
+- RSI(14) + distance from MA50 / MA200 + relative volume ✅
+- Still to add: YTD & since-listing returns, best/worst period, all-time high/low
 
 ## 2. Trend & moving averages — 🟢 FACT
 - SMA / EMA 20 / 50 / 100 / 200: above/below ✅ (MA50/MA200 built), distance, slope
