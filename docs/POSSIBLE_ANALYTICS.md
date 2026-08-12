@@ -81,11 +81,9 @@ we have: **end-of-day OHLCV** (open/high/low/close/volume) for ~985 symbols,
 - 52-week-high breakouts ✅ (near-52w-high)
 - Still to add: horizontal support/resistance levels, base-count, reversal day patterns
 
-## 10. Statistics & relationships — 🟢 FACT
-- Beta vs the market, correlation matrix between stocks
-- Co-moving pairs (pairs-trading candidates)
-- Seasonality: day-of-week, month-of-year, Ramadan/results-season effects
-- Return distribution / skew per stock
+## 10. Statistics & relationships — ◑ PARTIAL / 🟢 FACT
+- **Seasonality: day-of-week + month-of-year** ✅ (Monday weak / Friday strong; Nov best, Feb worst)
+- Still to add: beta vs market, correlation matrix + co-moving pairs, return distribution/skew
 
 ## 11. Risk & position tools — ✅ BUILT / 🟢 FACT
 - Stop-loss / target / risk-reward in the scan ✅
