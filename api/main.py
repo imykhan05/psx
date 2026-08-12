@@ -293,6 +293,12 @@ def get_stock(ticker: str) -> dict:
     except Exception:
         technicals = {}
 
+    try:
+        from app.engines.fundamentals_store import get_fundamentals
+        fundamentals = get_fundamentals(symbol)
+    except Exception:
+        fundamentals = {}
+
     return {
         "symbol": symbol,
         "company": text("company"),
@@ -300,6 +306,7 @@ def get_stock(ticker: str) -> dict:
         "price": price,
         "scoring": scoring,
         "technicals": technicals,       # full per-stock panel (facts)
+        "fundamentals": fundamentals,   # REAL P/E, EPS, mkt cap, free float (PSX)
         "news_sentiment": ticker_sentiment,  # None if no news matched this ticker
     }
 

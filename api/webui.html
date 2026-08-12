@@ -299,6 +299,17 @@
         kv("T1", num(sc.target_1))+
         kv("T2", num(sc.target_2))+
       '</div>';
+    var f = d.fundamentals || {};
+    if(f && (f.pe_ttm!=null || f.eps!=null || f.market_cap!=null)){
+      html += '<div class="k muted" style="font-size:11px;letter-spacing:.5px;margin-top:14px">FUNDAMENTALS (PSX)</div>'+
+        '<div class="row" style="margin-top:6px">'+
+          kv("P/E (TTM)", num(f.pe_ttm,2))+
+          kv("EPS", num(f.eps,2))+
+          kv("Market Cap", f.market_cap!=null?(Math.round(f.market_cap/1e9).toLocaleString()+" B"):"—")+
+          kv("Free Float", f.free_float_pct!=null?(num(f.free_float_pct,1)+"%"):"—")+
+          kv("52w range", (f.wk52_low!=null?num(f.wk52_low):"?")+" – "+(f.wk52_high!=null?num(f.wk52_high):"?"))+
+        '</div>';
+    }
     var t = d.technicals || {};
     if(t && t.history_days){
       function tcol(v){ var n=Number(v); return (v==null)?"var(--muted)":(n>=0?"var(--green)":"var(--red)"); }
@@ -520,7 +531,8 @@
     final_decision:"Decision", volume:"Vol", accumulation_score:"Accum",
     smart_money_score:"SmartMoney", stop_loss:"Stop", target_1:"T1", target_2:"T2",
     hi52:"52w High", close:"Close", symbol:"Symbol", rvol5:"Rel Vol",
-    hi20:"20d High", dist_hi20:"% to 20dH", range20:"20d Range"};
+    hi20:"20d High", dist_hi20:"% to 20dH", range20:"20d Range",
+    pe_ttm:"P/E", eps:"EPS"};
   function scrLabel(k){ return SCR_LABELS[k] || k; }
   var BIGNUM = {volume:1, value_traded:1};
 

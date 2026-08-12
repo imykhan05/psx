@@ -157,6 +157,14 @@ def _merged_frame() -> pd.DataFrame:
     df["pct_to_52w_high"] = (df["hi52"] - df["close"]) / df["hi52"] * 100.0
     df["dist_hi20"] = (df["hi20"] - df["close"]) / df["close"] * 100.0
     df["range20"] = (df["hi20"] - df["lo20"]) / df["lo20"] * 100.0
+    # real fundamentals (P/E, EPS) if scraped (tools/fetch_fundamentals.py)
+    try:
+        from app.engines.fundamentals_store import load_all as _load_fund
+        fund = _load_fund()
+    except Exception:
+        fund = {}
+    df["pe_ttm"] = df["symbol"].map(lambda s: (fund.get(s) or {}).get("pe_ttm"))
+    df["eps"] = df["symbol"].map(lambda s: (fund.get(s) or {}).get("eps"))
     return df
 
 
@@ -300,6 +308,16 @@ def build_screeners(df: pd.DataFrame | None = None) -> dict:
         "a pullback to support inside an uptrend. A setup, not a guarantee.",
         df[df["above_ma200"] & (df["close"] >= df["ma50"]) & (df["close"] <= df["ma50"] * 1.04)],
         "buy_probability", False, ["ma50", "change_pct", "final_decision"])
+
+    # ---- fundamentals (real PSX data, if scraped) ----
+    df["pe_ttm"] = pd.to_numeric(df.get("pe_ttm"), errors="coerce")
+    if df["pe_ttm"].notna().any():
+        add("value_low_pe", "Value — low P/E (real fundamentals)",
+            "Low trailing P/E, using REAL fundamentals scraped from the PSX company "
+            "pages. Low P/E can mean genuinely cheap OR a troubled business — a "
+            "starting point for research, not a buy signal.",
+            df[(df["pe_ttm"] > 0) & (df["pe_ttm"] < 8)], "pe_ttm", True,
+            ["pe_ttm", "eps", "change_pct", "final_decision"])
 
     # ---- scored screeners (only if the scan provided the columns) ----
     if df["final_decision"].notna().any():
