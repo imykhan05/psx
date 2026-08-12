@@ -335,6 +335,18 @@ def get_screener(name: str) -> dict:
     return {"name": name, "as_of_date": data.get("as_of_date"), **scr}
 
 
+SEASONALITY_FILE = Path(__file__).resolve().parents[1] / "reports" / "latest" / "seasonality.json"
+
+
+@app.get("/seasonality", dependencies=[Depends(require_api_key)])
+def get_seasonality() -> dict:
+    """Day-of-week and month-of-year historical return patterns (context, not a rule)."""
+    data = _read_json(SEASONALITY_FILE)
+    if not data:
+        raise HTTPException(status_code=404, detail="No seasonality yet. Run the scan first.")
+    return data
+
+
 HIGHLIGHTS_FILE = Path(__file__).resolve().parents[1] / "reports" / "latest" / "highlights.json"
 
 

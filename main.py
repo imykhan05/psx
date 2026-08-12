@@ -2053,6 +2053,20 @@ def main():
         )
 
     # ---------------------------------------------------------
+    # SEASONALITY ENGINE V1 — day-of-week / month-of-year patterns
+    # ---------------------------------------------------------
+    try:
+        from app.engines.seasonality_engine_v1 import run_seasonality_engine
+
+        run_seasonality_engine()
+        print("[SEASONALITY] seasonality.json updated.")
+    except Exception as exc:
+        print(
+            "[SEASONALITY] skipped (non-fatal): "
+            f"{type(exc).__name__}: {exc}"
+        )
+
+    # ---------------------------------------------------------
     # SYSTEM SUMMARIES
     # ---------------------------------------------------------
     print_dict(
