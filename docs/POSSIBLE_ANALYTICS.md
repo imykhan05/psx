@@ -73,12 +73,13 @@ we have: **end-of-day OHLCV** (open/high/low/close/volume) for ~985 symbols,
 - Percentile / tier tags ✅ (Top 10/25/50% built)
 - Leaders & laggards boards
 
-## 9. Pattern & level detection — 🟢 FACT / 🟡 HEURISTIC
-- Breakouts: new N-day high, range breakout, base breakout
-- Support / resistance levels (recent pivots, round numbers)
-- Consolidation / tight-range detection (pre-move coil)
-- 52-week-high breakouts on volume
-- Reversal flags (limited from EOD): hammer/engulfing-style day patterns
+## 9. Pattern & level detection — ✅ BUILT / 🟢 FACT
+- Breakout on volume (new 20-day high + sustained volume) ✅
+- Near-breakout (within 3% under the 20-day high) ✅
+- Tight consolidation / coil (20-day range in tightest ~20%) ✅
+- Pullback to MA50 inside an uptrend ✅
+- 52-week-high breakouts ✅ (near-52w-high)
+- Still to add: horizontal support/resistance levels, base-count, reversal day patterns
 
 ## 10. Statistics & relationships — 🟢 FACT
 - Beta vs the market, correlation matrix between stocks
