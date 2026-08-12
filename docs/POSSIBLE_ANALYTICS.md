@@ -121,9 +121,16 @@ we have: **end-of-day OHLCV** (open/high/low/close/volume) for ~985 symbols,
 
 ---
 
-## 🚫 What we CANNOT do without buying more data
-- **Fundamentals** — P/E, EPS, earnings, dividends, book value, growth (need a financial-data source)
-- **Real institutional / broker activity** — FIPI/LIPI, foreign flows (need NCCPL/CDC data)
+## Data status
+- **Fundamentals** — ✅ **NOW AVAILABLE** (scraped free from PSX company pages):
+  P/E (TTM), EPS, market cap, shares, free-float % for ~488 stocks
+  (`tools/fetch_fundamentals.py`). Shows in the stock lookup + a "Value — low P/E"
+  screener. Deeper items (earnings history, dividends, book value, growth) would
+  still need a fuller financial-data source.
+
+## 🚫 Still need data we DON'T have
+- **Real institutional / broker activity** — FIPI/LIPI, foreign flows (PSX's simple
+  endpoints 404; likely NCCPL/behind-SPA — needs investigation or a paid feed)
 - **Intraday / tick / order-book** — bid-ask, VWAP, intraday patterns (we only have EOD)
 - **Short interest, futures open-interest**
 - **Corporate-action calendar** — splits, bonuses, results dates (need a separate feed)
