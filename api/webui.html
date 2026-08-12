@@ -75,6 +75,8 @@
   .calcgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:10px}
   .calcgrid label{display:flex;flex-direction:column;gap:4px;font-size:11px;color:var(--muted)}
   .calcgrid input{font-size:15px}
+  .wx{cursor:pointer;color:var(--red);font-weight:800;padding:0 6px}
+  .wx:hover{opacity:.7}
 </style>
 </head>
 <body>
@@ -116,6 +118,16 @@
     <div class="card" id="hlCard">
       <h2>Today's highlights</h2>
       <div id="hlBody" class="muted">Loading…</div>
+    </div>
+
+    <!-- WATCHLIST -->
+    <div class="card">
+      <h2>My watchlist</h2>
+      <div class="flex" style="margin-bottom:8px">
+        <input id="wlInput" class="grow" placeholder="Add symbol (e.g. HBL)" autocomplete="off" style="text-transform:uppercase" />
+        <button id="wlAddBtn">Add</button>
+      </div>
+      <div id="wlBody" class="scroll muted">Loading…</div>
     </div>
 
     <!-- DAILY SIGNAL -->
@@ -306,11 +318,49 @@
         kv("Headlines", num(sn.n_headlines,0))+
       '</div>';
     }
-    html += '<button class="ghost" id="toCalc" style="margin-top:14px">→ Use in Position calculator</button>';
+    html += '<div class="flex" style="margin-top:14px">'+
+      '<button class="ghost" id="toCalc">→ Position calculator</button>'+
+      '<button class="ghost" id="toWatch">☆ Add to watchlist</button></div>';
     $("stockBody").innerHTML = html;
     if($("toCalc")) $("toCalc").onclick = function(){
       fillCalc(sc.suggested_entry_price!=null?sc.suggested_entry_price:p.close, sc.stop_loss, sc.target_1);
     };
+    if($("toWatch")) $("toWatch").onclick = function(){ addWatch(d.symbol); };
+  }
+
+  // ---- watchlist ----
+  function getWatch(){ try{ return JSON.parse(localStorage.getItem("psx_watchlist")||"[]"); }catch(e){ return []; } }
+  function setWatch(a){ localStorage.setItem("psx_watchlist", JSON.stringify(a)); }
+  function addWatch(sym){
+    sym=(sym||"").trim().toUpperCase(); if(!sym) return;
+    var a=getWatch(); if(a.indexOf(sym)<0){ a.push(sym); setWatch(a); }
+    loadWatchlist();
+  }
+  function removeWatch(sym){ setWatch(getWatch().filter(function(s){return s!==sym;})); loadWatchlist(); }
+
+  function loadWatchlist(){
+    var syms=getWatch();
+    if(!syms.length){ $("wlBody").innerHTML='<span class="muted">Koi stock nahi. Upar symbol add karein, ya kisi highlight/stock par ☆.</span>'; return; }
+    $("wlBody").innerHTML='<span class="muted">Loading…</span>';
+    Promise.all([ api("/stocks?size=1000"), api("/highlights").catch(function(){return {highlights:[]};}) ]).then(function(res){
+      var map={}; (res[0].rows||[]).forEach(function(r){ map[r.symbol]=r; });
+      var hmap={}; (res[1].highlights||[]).forEach(function(h){ (h.symbols||[]).forEach(function(s){ (hmap[s]=hmap[s]||[]).push(h.icon); }); });
+      function pc(v){ var n=Number(v); return '<td style="color:'+(v==null?"var(--muted)":(n>=0?"var(--green)":"var(--red)"))+'">'+num(v)+'</td>'; }
+      var h='<table><thead><tr><th></th><th>Symbol</th><th>Close</th><th>1d%</th><th>1w%</th><th>1m%</th><th>Buy%</th><th>Call</th><th>Today</th></tr></thead><tbody>';
+      syms.forEach(function(s){
+        var r=map[s];
+        if(!r){ h+='<tr><td><span class="wx" data-sym="'+s+'">×</span></td><td style="font-weight:800">'+s+'</td><td colspan="7" class="muted">not in latest scan</td></tr>'; return; }
+        h+='<tr><td><span class="wx" data-sym="'+s+'" title="remove">×</span></td>'+
+          '<td><span class="symchip" data-sym="'+s+'">'+s+'</span></td>'+
+          '<td>'+num(r.close)+'</td>'+pc(r.change_pct)+pc(r.ret_1w)+pc(r.ret_1m)+
+          '<td>'+num(r.buy_probability)+'</td>'+
+          '<td><span class="pill '+badgeClass(r.final_decision)+'">'+(r.final_decision||"—")+'</span></td>'+
+          '<td>'+((hmap[s]||[]).join(' '))+'</td></tr>';
+      });
+      $("wlBody").innerHTML=h+'</tbody></table>';
+      Array.prototype.forEach.call($("wlBody").querySelectorAll(".wx"), function(el){ el.onclick=function(){ removeWatch(el.getAttribute("data-sym")); }; });
+      Array.prototype.forEach.call($("wlBody").querySelectorAll(".symchip"), function(el){ el.onclick=function(){ $("tk").value=el.getAttribute("data-sym"); lookup(); $("stockBody").scrollIntoView({behavior:"smooth",block:"center"}); }; });
+    }).catch(function(e){ $("wlBody").innerHTML='<span class="err">'+e.message+'</span>'; });
   }
 
   // ---- position calculator ----
@@ -542,6 +592,7 @@
     $("signalBody").innerHTML = '<span class="muted">Loading…</span>';
     $("oppBody").innerHTML = '<span class="muted">Loading…</span>';
     loadHighlights();
+    loadWatchlist();
     loadBriefing();
     api("/signal").then(renderSignal).catch(function(e){
       $("signalBody").innerHTML = '<span class="err">'+e.message+'</span>';
@@ -590,6 +641,8 @@
   });
   $("cCap").value = localStorage.getItem("psx_cap") || "";
   $("cRisk").value = localStorage.getItem("psx_risk") || "1.5";
+  $("wlAddBtn").onclick = function(){ addWatch($("wlInput").value); $("wlInput").value=""; };
+  $("wlInput").addEventListener("keydown", function(e){ if(e.key==="Enter"){ addWatch($("wlInput").value); $("wlInput").value=""; } });
 
   // boot
   if(getKey()) showMain(); else showGate();
