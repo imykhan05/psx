@@ -97,8 +97,10 @@ we have: **end-of-day OHLCV** (open/high/low/close/volume) for ~985 symbols,
 ## 12. Alerts & monitoring — ◑ PARTIAL / 🟢 FACT
 - **Today's Highlights digest** ✅ — breakouts, accumulation, new highs, upper-locks,
   coils, volume spikes, most-active, gainers, accelerating sectors, news, in one card
-- Still to add: a personal **watchlist**; **mobile push notifications** (needs Firebase/FCM
-  — your account + config); threshold alerts on specific stocks
+- **Watchlist** ✅ — track your own stocks; each shows returns + decision + which
+  highlight groups it triggered today
+- Still to add: **mobile push notifications** (needs Firebase/FCM — your account + config);
+  per-stock threshold alerts
 
 ## 13. Validation & backtesting — 🔬 RESEARCH
 - Signal edge validation ✅ (built — validate_edge / validate_accumulation)
