@@ -127,7 +127,7 @@
     </div>
 
     <!-- WATCHLIST -->
-    <div class="card">
+    <div class="card" id="wlCard">
       <h2>My watchlist</h2>
       <div class="flex" style="margin-bottom:8px">
         <input id="wlInput" class="grow" placeholder="Add symbol (e.g. HBL)" autocomplete="off" style="text-transform:uppercase" />
@@ -143,7 +143,7 @@
     </div>
 
     <!-- STOCK LOOKUP -->
-    <div class="card">
+    <div class="card" id="lookupCard">
       <h2>Stock Lookup</h2>
       <div class="flex">
         <input id="tk" class="grow" placeholder="Symbol, e.g. MCB" autocomplete="off"
@@ -154,7 +154,7 @@
     </div>
 
     <!-- POSITION CALCULATOR -->
-    <div class="card">
+    <div class="card" id="calcCard">
       <h2>Position calculator</h2>
       <div class="calcgrid">
         <label>Capital (PKR)<input id="cCap" type="number" inputmode="decimal" placeholder="100000"></label>
@@ -168,7 +168,7 @@
     </div>
 
     <!-- SCREENERS -->
-    <div class="card">
+    <div class="card" id="screenersCard">
       <h2>Screeners — click &amp; go</h2>
       <div id="scrBtns" class="scrbtns muted">Loading…</div>
       <div id="scrNote" class="note"></div>
@@ -176,14 +176,14 @@
     </div>
 
     <!-- SECTOR ROTATION -->
-    <div class="card">
+    <div class="card" id="sectorsCard">
       <h2>Sector rotation — where money flowed</h2>
       <div id="secNote" class="note"></div>
       <div id="secBody" class="scroll muted">Loading…</div>
     </div>
 
     <!-- ALL STOCKS (paginated, ranked) -->
-    <div class="card">
+    <div class="card" id="allStocksCard">
       <h2>All stocks — ranked (buy-or-not)</h2>
       <div class="flex" style="margin-bottom:8px">
         <input id="stkSearch" class="grow" placeholder="Search symbol / company…" autocomplete="off" />
@@ -195,13 +195,13 @@
     </div>
 
     <!-- SEASONALITY -->
-    <div class="card">
+    <div class="card" id="seasonalityCard">
       <h2>Seasonality — day &amp; month patterns</h2>
       <div id="seaBody" class="scroll muted">Loading…</div>
     </div>
 
     <!-- OPPORTUNITIES -->
-    <div class="card">
+    <div class="card" id="oppsCard">
       <h2>Top Opportunities</h2>
       <div id="oppBody" class="scroll muted">Loading…</div>
     </div>
@@ -694,7 +694,13 @@
     });
   }
 
-  function showMain(){ $("gate").classList.add("hide"); $("main").classList.remove("hide"); loadAll(); }
+  function showMain(){
+    $("gate").classList.add("hide"); $("main").classList.remove("hide"); loadAll();
+    if(window.__scrollSec){
+      var s = window.__scrollSec; window.__scrollSec = null;
+      setTimeout(function(){ var el=document.getElementById(s); if(el) el.scrollIntoView({behavior:"smooth", block:"start"}); }, 1300);
+    }
+  }
   function showGate(msg){
     $("main").classList.add("hide"); $("gate").classList.remove("hide");
     if(msg){ $("gateErr").textContent = msg; $("gateErr").classList.remove("hide"); }
@@ -723,7 +729,17 @@
   $("wlAddBtn").onclick = function(){ addWatch($("wlInput").value); $("wlInput").value=""; };
   $("wlInput").addEventListener("keydown", function(e){ if(e.key==="Enter"){ addWatch($("wlInput").value); $("wlInput").value=""; } });
 
-  // boot
+  // boot — accept key + section via URL hash (used by the mobile app), then strip it
+  (function(){
+    var raw = location.hash.slice(1);
+    if(raw){
+      var p = {};
+      raw.split('&').forEach(function(kv){ var i=kv.indexOf('='); if(i>0) p[kv.slice(0,i)]=decodeURIComponent(kv.slice(i+1)); });
+      if(p.key){ setKey(p.key); }
+      if(p.sec){ window.__scrollSec = p.sec; }
+      try{ history.replaceState(null, '', location.pathname); }catch(e){}
+    }
+  })();
   if(getKey()) showMain(); else showGate();
 })();
 </script>

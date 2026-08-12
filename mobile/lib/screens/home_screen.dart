@@ -1,113 +1,104 @@
 import 'package:flutter/material.dart';
 import '../api.dart';
 import '../theme.dart';
-import '../widgets.dart';
+import 'webview_screen.dart';
 
-class HomeScreen extends StatefulWidget {
-  final ApiService api;
-  const HomeScreen({super.key, required this.api});
-  @override
-  State<HomeScreen> createState() => _HomeScreenState();
+class _Feature {
+  final String label;
+  final String desc;
+  final IconData icon;
+  final Color color;
+  final String section; // matches an id in the web page (webui.html)
+  const _Feature(this.label, this.desc, this.icon, this.color, this.section);
 }
 
-class _HomeScreenState extends State<HomeScreen> {
-  Map<String, dynamic>? signal;
-  ApiException? error;
-  bool loading = true;
+/// Home = a launcher grid of every feature. Tapping one opens the built-in web
+/// dashboard focused on that section (rich rendering, always in sync with the API).
+class HomeScreen extends StatelessWidget {
+  final ApiService api;
+  const HomeScreen({super.key, required this.api});
 
-  @override
-  void initState() {
-    super.initState();
-    _load();
-  }
+  static const _features = <_Feature>[
+    _Feature('Morning Briefing', 'Pre-market summary', Icons.wb_sunny_rounded, AppColors.amber, 'briefCard'),
+    _Feature("Today's Highlights", 'All triggers, one place', Icons.local_fire_department_rounded, AppColors.red, 'hlCard'),
+    _Feature('Model Ranking', 'Contrarian research', Icons.psychology_alt_rounded, AppColors.blue, 'modelCard'),
+    _Feature('Watchlist', 'Your tracked stocks', Icons.star_rounded, AppColors.amber, 'wlCard'),
+    _Feature('Daily Signal', 'Market verdict', Icons.speed_rounded, AppColors.green, 'signalCard'),
+    _Feature('Screeners', 'Breakouts, value, more', Icons.filter_alt_rounded, AppColors.blue, 'screenersCard'),
+    _Feature('Sector Rotation', 'Where money flows', Icons.pie_chart_rounded, AppColors.green, 'sectorsCard'),
+    _Feature('All Stocks', 'Ranked, paginated', Icons.format_list_numbered_rounded, AppColors.text, 'allStocksCard'),
+    _Feature('Seasonality', 'Day / month patterns', Icons.calendar_month_rounded, AppColors.amber, 'seasonalityCard'),
+    _Feature('Opportunities', 'Top-ranked names', Icons.trending_up_rounded, AppColors.green, 'oppsCard'),
+    _Feature('Position Calculator', 'Size & risk', Icons.calculate_rounded, AppColors.blue, 'calcCard'),
+    _Feature('Stock Lookup', 'Full per-stock panel', Icons.search_rounded, AppColors.text, 'lookupCard'),
+  ];
 
-  Future<void> _load() async {
-    setState(() {
-      loading = true;
-      error = null;
-    });
-    try {
-      final s = await widget.api.signal();
-      if (mounted) setState(() => signal = s);
-    } on ApiException catch (e) {
-      if (mounted) setState(() => error = e);
-    } finally {
-      if (mounted) setState(() => loading = false);
-    }
+  void _open(BuildContext ctx, _Feature f) {
+    final base = api.baseUrl.replaceAll(RegExp(r'/+$'), '');
+    final url = '$base/#key=${Uri.encodeComponent(api.apiKey)}&sec=${f.section}';
+    Navigator.of(ctx).push(MaterialPageRoute(
+      builder: (_) => WebViewScreen(url: url, title: f.label),
+    ));
   }
 
   @override
   Widget build(BuildContext context) {
-    if (loading) return const LoadingView();
-    if (error != null) {
-      return ErrorView(error: error!, onRetry: _load, baseUrl: widget.api.baseUrl);
-    }
-    final s = signal!;
-    final color = verdictColor(s['verdict']?.toString());
-    final confidence = (((s['confidence'] ?? 0) as num) * 100).round();
-    final breadth = (s['breadth'] ?? {}) as Map;
-    final sent = (s['sentiment_summary'] ?? {}) as Map;
-    final reasons = List<dynamic>.from(s['reasons'] ?? []);
-    final tops = List<dynamic>.from(s['top_opportunities'] ?? []);
-
-    return RefreshIndicator(
-      onRefresh: _load,
-      child: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          SectionCard(
-            padding: const EdgeInsets.all(22),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(s['verdict']?.toString() ?? '—',
-                    style: TextStyle(fontSize: 54, fontWeight: FontWeight.w900, color: color, height: 1)),
-                const SizedBox(height: 10),
-                Text('Confidence $confidence%   ·   Trading date ${s['date'] ?? '—'}',
-                    style: const TextStyle(color: AppColors.muted, fontSize: 15)),
-                const SizedBox(height: 14),
-                Wrap(spacing: 8, runSpacing: 8, children: [
-                  Chip2(
-                    child: Text('Advancers ${breadth['advancers'] ?? '—'} / Decliners ${breadth['decliners'] ?? '—'}',
-                        style: const TextStyle(color: AppColors.muted, fontSize: 13)),
-                  ),
-                  Chip2(
-                    child: Text('News: ${sent['bullish'] ?? 0} bullish, ${sent['bearish'] ?? 0} bearish, ${sent['neutral'] ?? 0} neutral',
-                        style: const TextStyle(color: AppColors.muted, fontSize: 13)),
-                  ),
-                ]),
-                const SizedBox(height: 16),
-                for (final r in reasons)
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 6),
-                    child: Text('•  $r', style: const TextStyle(fontSize: 15)),
-                  ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 14),
-          SectionCard(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text('TOP OPPORTUNITIES',
-                    style: TextStyle(color: AppColors.muted, fontSize: 12, letterSpacing: 0.5, fontWeight: FontWeight.w700)),
-                const SizedBox(height: 12),
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: tops.isEmpty
-                      ? [const Text('None flagged today.', style: TextStyle(color: AppColors.muted))]
-                      : [for (final t in tops) Chip2(child: Text(t.toString(), style: const TextStyle(fontWeight: FontWeight.w700)))],
-                ),
-                const SizedBox(height: 14),
-                Text('Generated ${s['generated_at'] ?? ''} · decision-support from an end-of-day rule-based scan, not financial advice.',
-                    style: const TextStyle(color: AppColors.muted, fontSize: 12)),
-              ],
-            ),
-          ),
-        ],
-      ),
+    return ListView(
+      padding: const EdgeInsets.fromLTRB(14, 16, 14, 20),
+      children: [
+        const Text('PSX AI Scanner',
+            style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900)),
+        const SizedBox(height: 2),
+        const Text('Tap any tool to open it',
+            style: TextStyle(color: AppColors.muted, fontSize: 13)),
+        const SizedBox(height: 16),
+        GridView.count(
+          crossAxisCount: 2,
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          mainAxisSpacing: 12,
+          crossAxisSpacing: 12,
+          childAspectRatio: 1.25,
+          children: _features.map((f) => _tile(context, f)).toList(),
+        ),
+      ],
     );
   }
+
+  Widget _tile(BuildContext ctx, _Feature f) => InkWell(
+        onTap: () => _open(ctx, f),
+        borderRadius: BorderRadius.circular(16),
+        child: Container(
+          decoration: BoxDecoration(
+            color: AppColors.card,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: AppColors.borderSoft),
+          ),
+          padding: const EdgeInsets.all(14),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(9),
+                decoration: BoxDecoration(
+                  color: f.color.withValues(alpha: 0.14),
+                  borderRadius: BorderRadius.circular(11),
+                ),
+                child: Icon(f.icon, color: f.color, size: 24),
+              ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(f.label,
+                      style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 14.5)),
+                  const SizedBox(height: 2),
+                  Text(f.desc,
+                      style: const TextStyle(color: AppColors.muted, fontSize: 11.5)),
+                ],
+              ),
+            ],
+          ),
+        ),
+      );
 }
