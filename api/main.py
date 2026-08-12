@@ -328,6 +328,19 @@ def get_screener(name: str) -> dict:
     return {"name": name, "as_of_date": data.get("as_of_date"), **scr}
 
 
+HIGHLIGHTS_FILE = Path(__file__).resolve().parents[1] / "reports" / "latest" / "highlights.json"
+
+
+@app.get("/highlights", dependencies=[Depends(require_api_key)])
+def get_highlights() -> dict:
+    """Today's Highlights digest: breakouts, accumulation, new highs, hot sectors,
+    news — all the day's triggers in one place. Facts / a watch-list, not signals."""
+    data = _read_json(HIGHLIGHTS_FILE)
+    if not data:
+        raise HTTPException(status_code=404, detail="No highlights yet. Run the scan first.")
+    return data
+
+
 SECTORS_FILE = Path(__file__).resolve().parents[1] / "reports" / "latest" / "sector_rotation.json"
 
 

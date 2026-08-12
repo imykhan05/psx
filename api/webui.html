@@ -66,6 +66,12 @@
     border-radius:9px;padding:8px 14px;font-weight:700;cursor:pointer}
   .pbtn:disabled{opacity:.4;cursor:default}
   .pinfo{color:var(--muted);font-size:12.5px}
+  .hlgrp{margin:10px 0}
+  .hltitle{font-size:13px;font-weight:700;margin-bottom:5px}
+  .hlwrap{display:flex;flex-wrap:wrap;gap:6px}
+  .symchip{cursor:pointer;background:var(--panel2);border:1px solid var(--line);
+    color:var(--text);border-radius:999px;padding:4px 11px;font-size:12px;font-weight:700}
+  .symchip:hover{border-color:var(--accent);color:var(--accent)}
 </style>
 </head>
 <body>
@@ -101,6 +107,12 @@
     <div class="card" id="briefCard">
       <h2>Morning briefing</h2>
       <div id="briefBody" class="muted">Loading…</div>
+    </div>
+
+    <!-- TODAY'S HIGHLIGHTS -->
+    <div class="card" id="hlCard">
+      <h2>Today's highlights</h2>
+      <div id="hlBody" class="muted">Loading…</div>
     </div>
 
     <!-- DAILY SIGNAL -->
@@ -254,6 +266,40 @@
       '</div>';
     }
     $("stockBody").innerHTML = html;
+  }
+
+  // ---- today's highlights ----
+  function loadHighlights(){
+    $("hlBody").innerHTML = '<span class="muted">Loading…</span>';
+    api("/highlights").then(function(d){
+      var hs = d.highlights || [];
+      if(!hs.length){ $("hlBody").innerHTML='<span class="muted">Nothing stood out today.</span>'; return; }
+      var html = hs.map(function(h){
+        var items;
+        if(h.symbols){
+          items = h.symbols.map(function(s){return '<span class="symchip" data-sym="'+s+'">'+s+'</span>';}).join('');
+        } else if(h.sectors){
+          items = h.sectors.map(function(s){return '<span class="pill badge-buy">'+s.sector+' '+num(s.ret_1w)+'%</span>';}).join(' ');
+        } else {
+          items = (h.news||[]).map(function(n){return '<span class="symchip" data-sym="'+n.symbol+'">'+n.symbol+' · '+n.label+'</span>';}).join('');
+        }
+        return '<div class="hlgrp"><div class="hltitle">'+h.icon+' '+h.title+
+          ' <span class="muted" style="font-weight:400">('+h.count+')</span></div>'+
+          '<div class="hlwrap">'+items+'</div></div>';
+      }).join('');
+      $("hlBody").innerHTML = html + '<div class="note" style="margin-top:6px">'+(d.note||'')+'</div>';
+      // tap a symbol -> stock lookup
+      Array.prototype.forEach.call($("hlBody").querySelectorAll(".symchip"), function(el){
+        el.onclick = function(){
+          var s = el.getAttribute("data-sym");
+          $("tk").value = s; lookup();
+          document.querySelector(".card #stockBody").scrollIntoView({behavior:"smooth", block:"center"});
+        };
+      });
+    }).catch(function(e){
+      $("hlBody").innerHTML = '<span class="err">'+e.message+'</span>';
+      if(/key/i.test(e.message)) showGate(e.message);
+    });
   }
 
   // ---- morning briefing ----
@@ -412,6 +458,7 @@
   function loadAll(){
     $("signalBody").innerHTML = '<span class="muted">Loading…</span>';
     $("oppBody").innerHTML = '<span class="muted">Loading…</span>';
+    loadHighlights();
     loadBriefing();
     api("/signal").then(renderSignal).catch(function(e){
       $("signalBody").innerHTML = '<span class="err">'+e.message+'</span>';

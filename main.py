@@ -2038,6 +2038,21 @@ def main():
         )
 
     # ---------------------------------------------------------
+    # HIGHLIGHTS ENGINE V1 — "Today's Highlights" digest
+    # Aggregates screeners + sectors + signal + news into one watch-list.
+    # ---------------------------------------------------------
+    try:
+        from app.engines.highlights_engine_v1 import run_highlights_engine
+
+        hl = run_highlights_engine()
+        print(f"[HIGHLIGHTS] {len(hl.get('highlights', []))} groups.")
+    except Exception as exc:
+        print(
+            "[HIGHLIGHTS] skipped (non-fatal): "
+            f"{type(exc).__name__}: {exc}"
+        )
+
+    # ---------------------------------------------------------
     # SYSTEM SUMMARIES
     # ---------------------------------------------------------
     print_dict(
