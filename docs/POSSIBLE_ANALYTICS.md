@@ -94,10 +94,11 @@ we have: **end-of-day OHLCV** (open/high/low/close/volume) for ~985 symbols,
 - Correlation-aware diversification check
 - "What-if" backtest of a screener as a strategy
 
-## 12. Alerts & monitoring — 🟢 FACT (to build)
-- Volume-surge alert, breakout alert, circuit alert, 52w-high alert
-- "My watchlist moved" daily digest
-- Push notification to the mobile app
+## 12. Alerts & monitoring — ◑ PARTIAL / 🟢 FACT
+- **Today's Highlights digest** ✅ — breakouts, accumulation, new highs, upper-locks,
+  coils, volume spikes, most-active, gainers, accelerating sectors, news, in one card
+- Still to add: a personal **watchlist**; **mobile push notifications** (needs Firebase/FCM
+  — your account + config); threshold alerts on specific stocks
 
 ## 13. Validation & backtesting — 🔬 RESEARCH
 - Signal edge validation ✅ (built — validate_edge / validate_accumulation)
