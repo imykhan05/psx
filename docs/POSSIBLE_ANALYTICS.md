@@ -87,12 +87,12 @@ we have: **end-of-day OHLCV** (open/high/low/close/volume) for ~985 symbols,
 - Seasonality: day-of-week, month-of-year, Ramadan/results-season effects
 - Return distribution / skew per stock
 
-## 11. Risk & position tools — 🟢 FACT
-- Stop-loss / target / risk-reward calc ✅ (in scan)
-- Position sizing from account size + risk %
-- Portfolio simulation & equity curve ✅ (partial)
-- Correlation-aware diversification check
-- "What-if" backtest of a screener as a strategy
+## 11. Risk & position tools — ✅ BUILT / 🟢 FACT
+- Stop-loss / target / risk-reward in the scan ✅
+- **Position-size / risk calculator** ✅ — capital + risk% + entry + stop → shares,
+  position value, %-of-capital, R:R, potential profit (auto-fills from a stock lookup)
+- Portfolio simulation & equity curve ✅ (partial, desktop)
+- Still to add: correlation-aware diversification; "what-if" backtest of a screener as a strategy
 
 ## 12. Alerts & monitoring — ◑ PARTIAL / 🟢 FACT
 - **Today's Highlights digest** ✅ — breakouts, accumulation, new highs, upper-locks,
