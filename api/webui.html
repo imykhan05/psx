@@ -72,6 +72,9 @@
   .symchip{cursor:pointer;background:var(--panel2);border:1px solid var(--line);
     color:var(--text);border-radius:999px;padding:4px 11px;font-size:12px;font-weight:700}
   .symchip:hover{border-color:var(--accent);color:var(--accent)}
+  .calcgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:10px}
+  .calcgrid label{display:flex;flex-direction:column;gap:4px;font-size:11px;color:var(--muted)}
+  .calcgrid input{font-size:15px}
 </style>
 </head>
 <body>
@@ -130,6 +133,20 @@
         <button id="tkBtn">Search</button>
       </div>
       <div id="stockBody" style="margin-top:12px"></div>
+    </div>
+
+    <!-- POSITION CALCULATOR -->
+    <div class="card">
+      <h2>Position calculator</h2>
+      <div class="calcgrid">
+        <label>Capital (PKR)<input id="cCap" type="number" inputmode="decimal" placeholder="100000"></label>
+        <label>Risk %<input id="cRisk" type="number" inputmode="decimal" placeholder="1.5"></label>
+        <label>Entry<input id="cEntry" type="number" inputmode="decimal"></label>
+        <label>Stop<input id="cStop" type="number" inputmode="decimal"></label>
+        <label>Target (opt)<input id="cTgt" type="number" inputmode="decimal"></label>
+      </div>
+      <button id="cCalcBtn" style="margin-top:10px;width:100%">Calculate</button>
+      <div id="cOut" style="margin-top:12px"></div>
     </div>
 
     <!-- SCREENERS -->
@@ -289,7 +306,49 @@
         kv("Headlines", num(sn.n_headlines,0))+
       '</div>';
     }
+    html += '<button class="ghost" id="toCalc" style="margin-top:14px">→ Use in Position calculator</button>';
     $("stockBody").innerHTML = html;
+    if($("toCalc")) $("toCalc").onclick = function(){
+      fillCalc(sc.suggested_entry_price!=null?sc.suggested_entry_price:p.close, sc.stop_loss, sc.target_1);
+    };
+  }
+
+  // ---- position calculator ----
+  function calcPosition(){
+    var cap=parseFloat($("cCap").value), risk=parseFloat($("cRisk").value),
+        entry=parseFloat($("cEntry").value), stop=parseFloat($("cStop").value), tgt=parseFloat($("cTgt").value);
+    if(cap>0) localStorage.setItem("psx_cap", cap);
+    if(risk>0) localStorage.setItem("psx_risk", risk);
+    var out=$("cOut");
+    if(!(cap>0 && risk>0 && entry>0 && stop>0)){ out.innerHTML='<span class="muted">Capital, risk %, entry aur stop daalein.</span>'; return; }
+    if(stop>=entry){ out.innerHTML='<span class="err">Stop, entry se neeche hona chahiye (long trade).</span>'; return; }
+    var rps=entry-stop, riskAmt=cap*risk/100, shares=Math.floor(riskAmt/rps),
+        posVal=shares*entry, pctCap=posVal/cap*100;
+    var html='<div class="row">'+
+      kv("Shares to buy", shares.toLocaleString())+
+      kv("Position value", Math.round(posVal).toLocaleString())+
+      kv("% of capital", pctCap.toFixed(1)+"%", pctCap>100?"var(--red)":"var(--text)")+
+      kv("Risk amount", Math.round(shares*rps).toLocaleString(), "var(--red)")+
+      kv("Risk / share", rps.toFixed(2))+
+    '</div>';
+    if(tgt>entry){
+      var rwps=tgt-entry, rr=rwps/rps, profit=shares*rwps;
+      html+='<div class="row" style="margin-top:10px">'+
+        kv("Reward / share", rwps.toFixed(2), "var(--green)")+
+        kv("R : R", rr.toFixed(2)+" : 1", rr>=2?"var(--green)":rr>=1?"var(--amber)":"var(--red)")+
+        kv("Potential profit", Math.round(profit).toLocaleString(), "var(--green)")+
+      '</div>';
+    }
+    if(pctCap>100) html+='<div class="note">Position aap ke capital se bada hai — shares/risk kam karein ya stop wider.</div>';
+    html+='<div class="note" style="color:var(--muted)">Fixed-fractional sizing. Fees/slippage shamil nahi.</div>';
+    out.innerHTML=html;
+  }
+  function fillCalc(entry, stop, tgt){
+    if(entry!=null) $("cEntry").value=entry;
+    if(stop!=null) $("cStop").value=stop;
+    if(tgt!=null) $("cTgt").value=tgt;
+    calcPosition();
+    $("cOut").scrollIntoView({behavior:"smooth", block:"center"});
   }
 
   // ---- today's highlights ----
@@ -525,6 +584,12 @@
   $("tk").addEventListener("keydown", function(e){ if(e.key==="Enter") lookup(); });
   $("stkSearchBtn").onclick = doStkSearch;
   $("stkSearch").addEventListener("keydown", function(e){ if(e.key==="Enter") doStkSearch(); });
+  $("cCalcBtn").onclick = calcPosition;
+  ["cCap","cRisk","cEntry","cStop","cTgt"].forEach(function(id){
+    $(id).addEventListener("keydown", function(e){ if(e.key==="Enter") calcPosition(); });
+  });
+  $("cCap").value = localStorage.getItem("psx_cap") || "";
+  $("cRisk").value = localStorage.getItem("psx_risk") || "1.5";
 
   // boot
   if(getKey()) showMain(); else showGate();
