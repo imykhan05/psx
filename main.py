@@ -2067,6 +2067,21 @@ def main():
         )
 
     # ---------------------------------------------------------
+    # MODEL ENGINE V1 — walk-forward-validated cross-sectional ranking
+    # (the honest "real model": small OOS edge; see docs/EDGE_VALIDATION.md)
+    # ---------------------------------------------------------
+    try:
+        from app.engines.model_engine_v1 import run_model_engine
+
+        mp = run_model_engine()
+        print(f"[MODEL] {mp.get('universe')} stocks ranked.")
+    except Exception as exc:
+        print(
+            "[MODEL] skipped (non-fatal): "
+            f"{type(exc).__name__}: {exc}"
+        )
+
+    # ---------------------------------------------------------
     # SYSTEM SUMMARIES
     # ---------------------------------------------------------
     print_dict(

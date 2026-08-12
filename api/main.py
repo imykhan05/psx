@@ -335,6 +335,19 @@ def get_screener(name: str) -> dict:
     return {"name": name, "as_of_date": data.get("as_of_date"), **scr}
 
 
+MODEL_FILE = Path(__file__).resolve().parents[1] / "reports" / "latest" / "model_picks.json"
+
+
+@app.get("/model", dependencies=[Depends(require_api_key)])
+def get_model() -> dict:
+    """Walk-forward-validated model ranking of today's stocks, with its measured
+    out-of-sample track record and caveats. A small real edge, not a sure thing."""
+    data = _read_json(MODEL_FILE)
+    if not data:
+        raise HTTPException(status_code=404, detail="No model output yet. Run the scan first.")
+    return data
+
+
 SEASONALITY_FILE = Path(__file__).resolve().parents[1] / "reports" / "latest" / "seasonality.json"
 
 

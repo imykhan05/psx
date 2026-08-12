@@ -120,6 +120,12 @@
       <div id="hlBody" class="muted">Loading…</div>
     </div>
 
+    <!-- MODEL PICKS -->
+    <div class="card" id="modelCard">
+      <h2>Model picks — walk-forward validated</h2>
+      <div id="modelBody" class="muted">Loading…</div>
+    </div>
+
     <!-- WATCHLIST -->
     <div class="card">
       <h2>My watchlist</h2>
@@ -332,6 +338,36 @@
       fillCalc(sc.suggested_entry_price!=null?sc.suggested_entry_price:p.close, sc.stop_loss, sc.target_1);
     };
     if($("toWatch")) $("toWatch").onclick = function(){ addWatch(d.symbol); };
+  }
+
+  // ---- model picks ----
+  function loadModel(){
+    $("modelBody").innerHTML = '<span class="muted">Loading…</span>';
+    api("/model").then(function(d){
+      var v = d.validation||{};
+      var track = '<div class="row" style="margin-bottom:4px">'+
+        '<span class="pill badge-buy">OOS net '+ (v.avg_net_of_cost_pct!=null?('+'+v.avg_net_of_cost_pct+'%'):'—') +' / '+(v.horizon_days||10)+'d</span>'+
+        '<span class="muted" style="font-size:12px">'+(v.years_beating_cost||'?')+'/'+(v.years_tested||'?')+' years beat cost · IC '+(v.ic_range||'')+'</span></div>';
+      var caveats = (d.caveats||[]).map(function(c){return '<li>'+c+'</li>';}).join('');
+      var rows = d.top||[];
+      var h='<table><thead><tr><th>#</th><th>Symbol</th><th>Close</th><th>1d%</th><th>Score</th><th>Rule</th></tr></thead><tbody>';
+      rows.forEach(function(r){
+        var chg=Number(r.change_pct);
+        h+='<tr><td>'+r.rank+'</td><td><span class="symchip" data-sym="'+r.symbol+'">'+r.symbol+'</span></td>'+
+          '<td>'+num(r.close)+'</td>'+
+          '<td style="color:'+(r.change_pct==null?"var(--muted)":(chg>=0?"var(--green)":"var(--red)"))+'">'+num(r.change_pct)+'</td>'+
+          '<td style="font-weight:700">'+num(r.model_score,2)+'</td>'+
+          '<td><span class="pill '+badgeClass(r.final_decision)+'">'+(r.final_decision||"—")+'</span></td></tr>';
+      });
+      $("modelBody").innerHTML = track +
+        '<div class="scroll">'+h+'</tbody></table></div>'+
+        '<div class="note" style="margin-top:8px">'+(d.note||'')+'</div>'+
+        '<details style="margin-top:6px"><summary class="muted" style="cursor:pointer;font-size:12px">Caveats (zaroor paṛhein)</summary>'+
+          '<ul style="font-size:12px;color:var(--muted);margin:6px 0">'+caveats+'</ul></details>';
+      Array.prototype.forEach.call($("modelBody").querySelectorAll(".symchip"), function(el){
+        el.onclick=function(){ $("tk").value=el.getAttribute("data-sym"); lookup(); $("stockBody").scrollIntoView({behavior:"smooth",block:"center"}); };
+      });
+    }).catch(function(e){ $("modelBody").innerHTML='<span class="err">'+e.message+'</span>'; });
   }
 
   // ---- watchlist ----
@@ -622,6 +658,7 @@
     $("signalBody").innerHTML = '<span class="muted">Loading…</span>';
     $("oppBody").innerHTML = '<span class="muted">Loading…</span>';
     loadHighlights();
+    loadModel();
     loadWatchlist();
     loadBriefing();
     api("/signal").then(renderSignal).catch(function(e){

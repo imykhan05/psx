@@ -70,3 +70,41 @@ the target is the strictly-future next-10-trading-day return.
   placed after this validation — now with a measured baseline to beat.
 
 *A negative result is a valid result. Publishing it is the honest outcome (project rule 9).*
+
+---
+
+## Update — a COMBINED model does have a small real edge (`tools/build_model.py`)
+
+Individually the signals are weak/negative. But a **cross-sectional linear model**
+that combines them, tested **walk-forward out-of-sample** (each year fit only on
+prior years), does beat the market:
+
+| Test year | OOS top−bottom decile (10d) | net of ~0.6% cost | IC |
+|-----------|----------------------------:|------------------:|----:|
+| 2019 | +5.72% | +5.12% | 0.107 |
+| 2020 | +6.22% | +5.62% | 0.119 |
+| 2021 | +3.57% | +2.97% | 0.073 |
+| 2022 | +4.14% | +3.54% | 0.063 |
+| 2023 | +4.37% | +3.77% | 0.088 |
+| 2024 | +1.53% | +0.93% | 0.053 |
+| 2025 | +0.30% | **−0.30%** | 0.050 |
+| 2026 | +4.26% | +3.66% | 0.084 |
+
+**Average +3.76% (net +3.16%) over 10 days; positive net in 7 of 8 years.** The
+fitted model is essentially **contrarian + volume**: it shorts momentum / stocks
+near 52-week highs / high-RSI, and favours beaten-down names with volume coming in
+(coefficients: dist_52w_high −0.27, dist_ma50 −0.23, rsi14 −0.15, rev_5 +0.13,
+vol_ratio +0.13, mom_21 +0.12, rvol_5 +0.08).
+
+### This is real, but read the caveats
+- It is a **diversified-basket** edge over ~2 weeks (IC ~0.08) — **not** a per-stock
+  80% prediction.
+- Much of the spread is **long-SHORT**; shorting is impractical on PSX, so a
+  long-only user captures roughly half.
+- Costs/slippage/illiquidity in small names erode the net edge; **2025 was flat**.
+- Past OOS performance ≠ future results.
+
+Shipped as **`app/engines/model_engine_v1.py`** (fits on history, ranks today's
+stocks) → `GET /model` → the "Model picks" card. This is the honest version of a
+"what to consider" model: a small, validated edge, labelled with its real track
+record and limits — never an 80% guarantee.

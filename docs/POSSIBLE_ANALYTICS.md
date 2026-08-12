@@ -109,10 +109,15 @@ we have: **end-of-day OHLCV** (open/high/low/close/volume) for ~985 symbols,
 - Headline sentiment per ticker ✅
 - News volume spikes, event flags (could extend to global/commodity/FX news)
 
-## 15. A real predictive model — 🔬 RESEARCH (the honest path to "what to buy")
-- Combine the weak-but-real pieces (sustained volume + regime-aware reversion + breadth)
-  into a model, validated walk-forward, only shipped if it beats the market **after costs**.
-- Realistic target: a small, honest edge (~53–58% directional) — **not** 80%.
+## 15. A real predictive model — ✅ BUILT / 🔬 (walk-forward validated)
+- **model_engine_v1** ✅ — cross-sectional linear model over the measured features,
+  fit on history, ranks today's stocks → `GET /model` → "Model picks" card
+- **Out-of-sample track record:** +3.76%/10d top−bottom decile (net +3.16%), positive
+  in 7 of 8 years (2019–2026); see `docs/EDGE_VALIDATION.md`
+- Honest limits shipped WITH it: diversified-basket edge (IC ~0.08), not 80% per-stock;
+  half is long-short (shorting hard on PSX); costs/liquidity/regime can erode it
+- Still to improve: regime filter, richer features (needs more data — #10/fundamentals),
+  proper long-only after-cost backtest with position sizing
 
 ---
 
