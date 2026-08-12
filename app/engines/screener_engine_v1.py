@@ -313,10 +313,11 @@ def build_screeners(df: pd.DataFrame | None = None) -> dict:
     df["pe_ttm"] = pd.to_numeric(df.get("pe_ttm"), errors="coerce")
     if df["pe_ttm"].notna().any():
         add("value_low_pe", "Value — low P/E (real fundamentals)",
-            "Low trailing P/E, using REAL fundamentals scraped from the PSX company "
-            "pages. Low P/E can mean genuinely cheap OR a troubled business — a "
-            "starting point for research, not a buy signal.",
-            df[(df["pe_ttm"] > 0) & (df["pe_ttm"] < 8)], "pe_ttm", True,
+            "Trailing P/E between 2 and 8, using REAL fundamentals scraped from the "
+            "PSX company pages. Low P/E can mean genuinely cheap OR a troubled "
+            "business — a starting point for research, not a buy signal. (P/E below "
+            "2 is excluded: it usually reflects a one-off earnings spike, not value.)",
+            df[(df["pe_ttm"] >= 2) & (df["pe_ttm"] < 8)], "pe_ttm", True,
             ["pe_ttm", "eps", "change_pct", "final_decision"])
 
     # ---- scored screeners (only if the scan provided the columns) ----
