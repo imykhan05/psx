@@ -125,14 +125,19 @@ WEBUI_FILE = Path(__file__).resolve().parent / "webui.html"
 
 @app.get("/", include_in_schema=False)
 def home():
-    """Built-in web UI: open the URL, enter the API key, see the data.
+    """Built-in web UI. The API key is injected at serve time so the page (and the
+    'Add to Home Screen' iOS/Android web-app) auto-connects with no manual entry.
 
-    The page itself loads without a key; it prompts for the key and then calls
-    the same-origin endpoints below with the X-API-Key header.
+    The key comes from the PSX_API_KEY env var and is never stored in the repo.
+    Trade-off: anyone with this URL gets in — fine for a personal, obscure tunnel
+    URL. Set PSX_WEB_AUTOCONNECT=0 to fall back to asking for the key.
     """
-    if WEBUI_FILE.exists():
-        return FileResponse(WEBUI_FILE, media_type="text/html")
-    return JSONResponse({"service": "psx-ai-scanner-api", "docs": "/docs"})
+    if not WEBUI_FILE.exists():
+        return JSONResponse({"service": "psx-ai-scanner-api", "docs": "/docs"})
+    html = WEBUI_FILE.read_text(encoding="utf-8")
+    if os.environ.get("PSX_WEB_AUTOCONNECT", "1") != "0":
+        html = html.replace("__PSX_API_KEY__", API_KEY)
+    return HTMLResponse(html)
 
 
 APK_FILE = (
@@ -197,6 +202,17 @@ def download_page():
    </ol>
    <p class="muted" style="font-size:12px">Ya bina install ke: seedha
      <a href="/" style="color:#4c9ffe">yeh web page</a> kholein — wahi data, koi app nahi.</p>
+ </div>
+ <div class="card">
+   <b>🍎 iPhone / iOS:</b>
+   <p style="font-size:13px;margin:6px 0">iPhone par APK nahi chalti (Apple ki paband​i). Lekin yehi
+   app iPhone par bhi hai — Safari ke zariye:</p>
+   <ol>
+     <li><b>Safari</b> mein <a href="/" style="color:#4c9ffe">yeh page</a> kholein.</li>
+     <li>Neeche <b>Share</b> (⬆️) button dabayein.</li>
+     <li><b>"Add to Home Screen"</b> chunein → Add.</li>
+     <li>Home screen par app-icon ban jayega — full-screen khulega, key khud lag jaati hai.</li>
+   </ol>
  </div>
  <script>document.getElementById('base').textContent = location.origin;</script>
 </div></body></html>"""

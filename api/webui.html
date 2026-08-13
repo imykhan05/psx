@@ -2,8 +2,18 @@
 <html lang="en">
 <head>
 <meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <title>PSX AI Scanner</title>
+<!-- iPhone / iOS: "Add to Home Screen" opens this full-screen like an app -->
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="PSX Scanner" />
+<meta name="theme-color" content="#0b0e14" />
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Crect width='180' height='180' rx='40' fill='%230b0e14'/%3E%3Ctext x='50%25' y='58%25' font-size='96' text-anchor='middle' dominant-baseline='middle'%3E%F0%9F%93%88%3C/text%3E%3C/svg%3E" />
+<!-- The server replaces the token below with the real key so the page
+     auto-connects with no manual entry (see api/main.py home()). -->
+<script>window.__PSX_KEY__ = "__PSX_API_KEY__";</script>
 <style>
   :root{
     --bg:#0b0e14; --panel:#141a24; --panel2:#1b2331; --line:#26303f;
@@ -740,6 +750,10 @@
       try{ history.replaceState(null, '', location.pathname); }catch(e){}
     }
   })();
+  // auto-connect: use the server-injected key when the user hasn't set one yet
+  if(!getKey() && window.__PSX_KEY__ && window.__PSX_KEY__.indexOf("__PSX_API") !== 0){
+    setKey(window.__PSX_KEY__);
+  }
   if(getKey()) showMain(); else showGate();
 })();
 </script>
