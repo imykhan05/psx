@@ -464,6 +464,15 @@ def get_stocks(page: int = 1, size: int = 50, q: str | None = None, sort: str = 
     }
 
 
+@app.post("/ask", dependencies=[Depends(require_api_key)])
+def post_ask(body: QueryRequest) -> dict:
+    """Local NLP assistant — answers questions straight from the pipeline's JSON
+    data. NO external AI (no Gemini/Anthropic), no cost, always current, never
+    hallucinates. Understands English + Roman-Urdu."""
+    from app.engines.local_assistant_v1 import answer
+    return {"question": body.question, "answer": answer(body.question), "engine": "local"}
+
+
 @app.post("/query", dependencies=[Depends(require_api_key)])
 def post_query(body: QueryRequest, stream: bool = False):
     """

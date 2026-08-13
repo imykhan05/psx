@@ -93,4 +93,10 @@ class ApiService {
     final data = await _post('/query', {'question': question});
     return (data as Map)['answer']?.toString() ?? '';
   }
+
+  /// Local assistant — answers from the pipeline's JSON data, no external AI.
+  Future<String> ask(String question) async {
+    final data = await _post('/ask', {'question': question}, timeout: const Duration(seconds: 20));
+    return (data as Map)['answer']?.toString() ?? '';
+  }
 }

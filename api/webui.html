@@ -130,6 +130,16 @@
       <div id="hlBody" class="muted">Loading…</div>
     </div>
 
+    <!-- AI ASSISTANT (local) -->
+    <div class="card" id="askCard">
+      <h2>Ask — local assistant (no external AI)</h2>
+      <div class="flex" style="margin-bottom:8px">
+        <input id="askInput" class="grow" placeholder="market kaisa hai? · HBL ka haal · value stocks · kya khareedun?" autocomplete="off" />
+        <button id="askBtn">Ask</button>
+      </div>
+      <div id="askBody" style="white-space:pre-wrap;font-size:13.5px;line-height:1.55;color:var(--text)"></div>
+    </div>
+
     <!-- MODEL PICKS -->
     <div class="card" id="modelCard">
       <h2>Model ranking — contrarian research (not a buy list)</h2>
@@ -359,6 +369,17 @@
       fillCalc(sc.suggested_entry_price!=null?sc.suggested_entry_price:p.close, sc.stop_loss, sc.target_1);
     };
     if($("toWatch")) $("toWatch").onclick = function(){ addWatch(d.symbol); };
+  }
+
+  // ---- local AI assistant ----
+  function askAssistant(){
+    var q = ($("askInput").value||"").trim();
+    if(!q) return;
+    $("askBody").textContent = "…";
+    fetch("/ask", {method:"POST", headers:{"X-API-Key":getKey(),"Content-Type":"application/json"}, body: JSON.stringify({question:q})})
+      .then(function(r){ return r.json(); })
+      .then(function(d){ $("askBody").textContent = d.answer || d.detail || "Koi jawab nahi."; })
+      .catch(function(e){ $("askBody").innerHTML = '<span class="err">'+e.message+'</span>'; });
   }
 
   // ---- model picks ----
@@ -736,6 +757,8 @@
   });
   $("cCap").value = localStorage.getItem("psx_cap") || "";
   $("cRisk").value = localStorage.getItem("psx_risk") || "1.5";
+  $("askBtn").onclick = askAssistant;
+  $("askInput").addEventListener("keydown", function(e){ if(e.key==="Enter") askAssistant(); });
   $("wlAddBtn").onclick = function(){ addWatch($("wlInput").value); $("wlInput").value=""; };
   $("wlInput").addEventListener("keydown", function(e){ if(e.key==="Enter"){ addWatch($("wlInput").value); $("wlInput").value=""; } });
 

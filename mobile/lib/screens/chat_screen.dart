@@ -20,7 +20,9 @@ class _ChatScreenState extends State<ChatScreen> {
   final scroll = ScrollController();
   final List<_Msg> messages = [
     _Msg('ai',
-        'Ask me about today\'s scan — in English or Urdu. e.g. "Is today good for buying?" or "MCB ke baare mein kya sochte ho?"'),
+        'Local assistant — no external AI, no cost. Poochein (English/Urdu):\n'
+        '• market kaisa hai?  • HBL ka haal  • top gainers\n'
+        '• value stocks  • kaunse sectors chal rahe  • kya khareedun?'),
   ];
   bool busy = false;
 
@@ -50,11 +52,10 @@ class _ChatScreenState extends State<ChatScreen> {
     });
     _toBottom();
     try {
-      final answer = await widget.api.query(q);
+      final answer = await widget.api.ask(q);   // local assistant, no external AI
       if (mounted) setState(() => messages.add(_Msg('ai', answer)));
     } on ApiException catch (e) {
-      // Graceful failure (e.g. Anthropic billing error) — never crash.
-      if (mounted) setState(() => messages.add(_Msg('err', 'Assistant unavailable: ${e.message}')));
+      if (mounted) setState(() => messages.add(_Msg('err', 'Not reachable: ${e.message}')));
     } finally {
       if (mounted) setState(() => busy = false);
       _toBottom();

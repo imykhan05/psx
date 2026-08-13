@@ -19,6 +19,7 @@ class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key, required this.api});
 
   static const _features = <_Feature>[
+    _Feature('AI Assistant', 'Ask about the data', Icons.chat_bubble_rounded, AppColors.blue, 'askCard'),
     _Feature('Morning Briefing', 'Pre-market summary', Icons.wb_sunny_rounded, AppColors.amber, 'briefCard'),
     _Feature("Today's Highlights", 'All triggers, one place', Icons.local_fire_department_rounded, AppColors.red, 'hlCard'),
     _Feature('Model Ranking', 'Contrarian research', Icons.psychology_alt_rounded, AppColors.blue, 'modelCard'),
