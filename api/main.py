@@ -371,6 +371,20 @@ def get_model() -> dict:
     return data
 
 
+INTRADAY_FILE = Path(__file__).resolve().parents[1] / "reports" / "latest" / "intraday.json"
+
+
+@app.get("/intraday", dependencies=[Depends(require_api_key)])
+def get_intraday() -> dict:
+    """Near-live intraday snapshot (PSX market-watch), refreshed every ~30 min
+    during trading hours. Current price, day high/low, change%, volume per stock,
+    plus intraday gainers/losers/most-active. Data, not a prediction."""
+    data = _read_json(INTRADAY_FILE)
+    if not data:
+        raise HTTPException(status_code=404, detail="No intraday snapshot yet.")
+    return data
+
+
 SEASONALITY_FILE = Path(__file__).resolve().parents[1] / "reports" / "latest" / "seasonality.json"
 
 
